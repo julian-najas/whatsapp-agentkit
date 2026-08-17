@@ -120,8 +120,10 @@ escribe en un archivo que el próximo despliegue se lleva puesto.
   el del kit otra vez y volvé a desplegar. El nombre vive adentro de la cadena y ningún import lo
   nombra, así que con SQLite esa línea nunca corrió y el error aparece recién acá.
 - **`connect() got an unexpected keyword argument 'sslmode'`.** Es el párrafo de arriba.
-- **`RecordatorioSinDriver` al agendar.** No es un defecto: es la detención declarada. La cita salió
-  igual. Decíselo a quien instala en vez de tapar la excepción.
+- **`RecordatorioSinDriver` al agendar.** `psycopg2-binary` está fijado, así que con SQLite y con
+  Postgres el recordatorio sale. La excepción queda sólo para una base sin driver síncrono
+  soportado: la cita y la confirmación salen igual, con el motivo escrito. Decíselo a quien instala
+  en vez de tapar la excepción.
 - **`password authentication failed` después de andar bien.** Copiaste el valor en vez de referenciar
   la variable del servicio.
 

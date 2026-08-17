@@ -455,10 +455,9 @@ con Postgres, el recordatorio de 24 horas anda.
 - **Postgres.** `url_sincrona()` devuelve la URL síncrona y el jobstore se arma con
   `psycopg2-binary`. El recordatorio se programa.
 
-El fallback sigue como defensa: si `psycopg2-binary` no estuviera instalado, `url_sincrona()`
-levanta `RecordatorioSinDriver`, el paso 4 deja `cita.recordatorio_programado` en falso con el
-motivo escrito, y la cita y la confirmación por WhatsApp salen igual. Con el driver fijado, ese
-fallback no se dispara.
+`RecordatorioSinDriver` queda para una base que no tiene driver síncrono soportado —ni SQLite ni
+Postgres—: el paso 4 lo atrapa, deja `cita.recordatorio_programado` en falso con el motivo escrito,
+y la cita y la confirmación por WhatsApp salen igual. Con SQLite y con Postgres no se dispara.
 
 ---
 

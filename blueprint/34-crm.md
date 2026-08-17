@@ -80,7 +80,7 @@ upsert del Paso 3 va a usar la otra.
 | Función | Devuelve | `sslmode` y compañía |
 |---|---|---|
 | `normalizar_url(cruda)` | `postgresql+asyncpg://…` · `sqlite+aiosqlite:///./wca.db` | los descarta |
-| `url_sincrona(cruda)` | `sqlite:///./wca.db` · con Postgres levanta `RecordatorioSinDriver` | los conserva |
+| `url_sincrona(cruda)` | `sqlite:///./wca.db` · `postgresql://…` con `psycopg2-binary` | los conserva |
 
 **Son dos y no una.** `normalizar_url()` es la del proyecto: el motor de SQLAlchemy es async y pide
 `+asyncpg` o `+aiosqlite`. `url_sincrona()` existe para un solo cliente, el jobstore de APScheduler
@@ -93,40 +93,32 @@ arreglo lo hacen las dos. **El que las separa es el otro:** `sslmode`, `channel_
 asyncpg las recibe como argumento de `connect()`, así que `normalizar_url()` las descarta —si el
 servidor exige TLS, va aparte en `connect_args={"ssl": "require"}`—. El camino síncrono es libpq
 puro: ahí `sslmode=require` se entiende, y sacarlo sería quitarle el TLS a la conexión sin decírselo
-a nadie. Hoy eso no se llega a ver con Postgres, porque antes levanta `RecordatorioSinDriver`; la
-regla está escrita para el día que se fije el driver, y para que nadie las «unifique» de paso.
+a nadie. `url_sincrona()` conserva la query entera a propósito: es lo que impide que alguien las
+«unifique» de paso.
 
-**Tenés que ver.** Las dos formas, y la excepción declarada:
+**Tenés que ver.** Las dos formas, cada una con su base:
 
 ```bash
 .venv/bin/python -c "from agente.base import normalizar_url as n; print(n('postgres://u:p@h:5432/db?sslmode=require'))"
+.venv/bin/python -c "from agente.base import url_sincrona as s; print(s('postgres://u:p@h:5432/db?sslmode=require'))"
 .venv/bin/python -c "from agente.base import url_sincrona as s; print(s('sqlite:///./wca.db'))"
 ```
 
 ```
 postgresql+asyncpg://u:p@h:5432/db
+postgresql://u:p@h:5432/db?sslmode=require
 sqlite:///./wca.db
 ```
 
-```bash
-.venv/bin/python -c "
-from agente.base import RecordatorioSinDriver, url_sincrona
-try: url_sincrona('postgres://u:p@h:5432/db?sslmode=require')
-except RecordatorioSinDriver: print('RecordatorioSinDriver, que es lo que corresponde hoy')"
-```
-
-```
-RecordatorioSinDriver, que es lo que corresponde hoy
-```
-
-**Y esas tres líneas también las corre la suite, que es lo que hace que no se puedan «unificar» un
+**Y esas líneas también las corre la suite, que es lo que hace que no se puedan «unificar» un
 martes.** `pruebas/test_camino_feliz.py::test_recordatorio_las_dos_formas_de_la_url_de_la_base`
-afirma las cuatro salidas de la tabla y la excepción, y no espera al paso 4: `agente/base.py`
-existe desde la fase 3, así que ese nodo corre desde ahí. Hasta esta ronda los tres comandos de
-arriba eran prosa —los corría quien construía, una vez, mirando la pantalla— y la decisión de
-`blueprint/00-contrato.md` § 8 no tenía una sola aserción atrás. Medido sobre un árbol de prueba:
-con `url_sincrona()` devolviendo lo mismo que `normalizar_url()`, y con `normalizar_url()` sin
-descartar `sslmode`, ese nodo se pone rojo y ningún otro de la suite se mueve.
+afirma las salidas de la tabla —`postgres://`, `postgresql://` y `postgresql+asyncpg://` a
+`postgresql://`, y `sqlite` a `sqlite`—, y no espera al paso 4: `agente/base.py` existe desde la
+fase 3, así que ese nodo corre desde ahí. Hasta esta ronda los comandos de arriba eran prosa
+—los corría quien construía, una vez, mirando la pantalla— y la decisión de `blueprint/00-contrato.md`
+§ 8 no tenía una sola aserción atrás. Medido sobre un árbol de prueba: con `url_sincrona()`
+devolviendo lo mismo que `normalizar_url()`, y con `normalizar_url()` sin descartar `sslmode`, ese
+nodo se pone rojo y ningún otro de la suite se mueve.
 
 **Si falla.**
 
@@ -310,12 +302,13 @@ credencial a propósito.
 ## Qué quedó hecho
 
 `leads` con las seis etapas y la clave en `contacto_id`. Las dos formas de la URL verificadas: la
-async del proyecto y la síncrona del jobstore, que con Postgres levanta `RecordatorioSinDriver` a
-propósito. Un upsert que no toca `creado_en`, `dueno` ni `notas`. El resumen verificado por código.
+async del proyecto y la síncrona del jobstore, que con Postgres baja a `postgresql://` con
+`psycopg2-binary`. Un upsert que no toca `creado_en`, `dueno` ni `notas`. El resumen verificado por
+código.
 Y el camino sin credencial, que devuelve la fila en vez de perderla.
 
 Las cuatro cosas de este archivo que la suite mira, para que no haga falta buscarlas: las dos
-formas de la URL y su excepción, la forma de la petición del upsert, las tres columnas que no
+formas de la URL, la forma de la petición del upsert, las tres columnas que no
 viajan, y `crm.escrito` atado a la respuesta del servicio. Están en
 `pruebas/test_camino_feliz.py`, que es el archivo que corre el camino que **sí** pasa; el que no
 pasa —sin confirmación no se escribe la fila— sigue en `pruebas/test_caso_01.py`.

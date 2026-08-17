@@ -45,7 +45,7 @@ tiene que pasar, y es la que impide aprobar a un build que dice que sí a todo:
 | la cita trae el id que devolvió el calendario | sin confirmación, o sin horario elegido, no se llama a Google |
 | el `freeBusy` va pegado al insert | con el hueco ocupado no se crea nada y se vuelve a ofrecer |
 | el CRM escribe la fila | si el servicio la rechaza, `escrito` queda en falso |
-| el recordatorio queda agendado | con Postgres queda declarado detenido, y la cita sale igual |
+| el recordatorio queda agendado | con Postgres queda agendado también, por `psycopg2-binary` |
 
 **La mitad «sí se agenda» es alcanzable desde esta ronda, y antes no lo era.** El paso 4 pide dos
 cosas —confirmación explícita y `mensaje.horario_elegido`— y hasta esta ronda el contrato de
@@ -1506,16 +1506,19 @@ def test_recordatorio_las_dos_formas_de_la_url_de_la_base() -> None:
         f"driver`.",
     )
 
-    with pytest.raises(base.RecordatorioSinDriver) as fallo:
-        base.url_sincrona("postgres://u:p@h:5432/db?sslmode=require")
-    motivo = str(fallo.value).lower()
-    assert any(p in motivo for p in ("driver", "pines", "recordatorio")), roto(
-        RECORDATORIO,
-        f"`url_sincrona()` levantó `RecordatorioSinDriver` sin decir por qué: «{fallo.value}». "
-        f"Ese "
-        f"texto es lo que termina en `pasos[3].motivo` y lo que lee quien se pregunta por qué el "
-        f"recordatorio no salió.",
-    )
+    for cruda in (
+        "postgres://u:p@h:5432/db?sslmode=require",
+        "postgresql://u:p@h:5432/db?sslmode=require",
+        "postgresql+asyncpg://u:p@h:5432/db?sslmode=require",
+    ):
+        assert base.url_sincrona(cruda) == "postgresql://u:p@h:5432/db?sslmode=require", roto(
+            RECORDATORIO,
+            f"`url_sincrona({cruda!r})` devolvió {base.url_sincrona(cruda)!r}. Con "
+            f"`psycopg2-binary` fijado, las tres formas de Postgres bajan a `postgresql://` "
+            f"conservando host, usuario, contraseña, puerto, base y `sslmode`. Levantar "
+            f"`RecordatorioSinDriver` acá era el bug: el recordatorio quedaba detenido con la "
+            f"dependencia ya instalada.",
+        )
 
 
 def trabajos_agendados() -> list:
@@ -1561,18 +1564,17 @@ def cuando_corre(trabajo) -> datetime | None:
 @pytest.mark.parametrize(
     "base",
     ["sqlite", "postgres"],
-    ids=["sobre SQLite queda agendado", "sobre Postgres queda detenido"],
+    ids=["sobre SQLite queda agendado", "sobre Postgres queda agendado"],
 )
 def test_recordatorio_programado_solo_si_quedo_un_trabajo_en_el_scheduler(
     correr, entorno, tmp_path, base: str
 ) -> None:
-    """Las dos conductas de `blueprint/00-contrato.md` § 8, cada una con su mitad.
+    """Las dos bases de `blueprint/00-contrato.md` § 8, cada una con su URL.
 
-    Sobre SQLite el recordatorio funciona entero y `recordatorio_programado` en verdadero tiene
-    que tener un trabajo atrás, con el id de la cita y a 24 horas del inicio. Sobre Postgres
-    `url_sincrona()` levanta `RecordatorioSinDriver` —el jobstore de APScheduler es síncrono y el
-    driver síncrono no está fijado en PINES.md—, así que el campo queda en falso **con el motivo
-    escrito**, y la cita y la confirmación salen igual.
+    Sobre SQLite el recordatorio funciona entero porque `sqlite3` es de la biblioteca estándar.
+    Sobre Postgres funciona porque `psycopg2-binary` está fijado: `url_sincrona()` devuelve
+    `postgresql://…` en vez de levantar, y el jobstore se arma. En las dos, `recordatorio_programado`
+    en verdadero tiene que tener un trabajo atrás, con el id de la cita y a 24 horas del inicio.
 
     La § 8 entera se puede mentir en un booleano, y hasta esta ronda no había un solo nodo que
     mirara el scheduler.
@@ -1592,36 +1594,6 @@ def test_recordatorio_programado_solo_si_quedo_un_trabajo_en_el_scheduler(
 
     programado = cita.get("recordatorio_programado")
     cuarto = paso(salida, 4)
-
-    if base == "postgres":
-        assert programado is False, roto(
-            RECORDATORIO,
-            f"sobre Postgres `recordatorio_programado` dice {programado!r}. El jobstore de "
-            f"APScheduler 3 es síncrono y pide un driver que PINES.md no fija: `url_sincrona()` "
-            f"levanta `RecordatorioSinDriver` y el paso lo deja en falso. Un verdadero acá es la "
-            f"noche anterior a la cita sin recordatorio y nadie avisado.",
-        )
-        motivo = (cuarto.get("motivo") or "").lower()
-        assert any(p in motivo for p in ("driver", "recordatorio", "apscheduler", "postgres")), (
-            roto(
-                RECORDATORIO,
-                f"el recordatorio no se pudo programar y el paso 4 no dice por qué: "
-                f"«{cuarto.get('motivo')}». El motivo va en `pasos[3].motivo` y no adentro de "
-                f"`cita`, que es `additionalProperties: false` con cinco propiedades.",
-            )
-        )
-        assert cuarto["estado"] == "hecho", roto(
-            RECORDATORIO,
-            f"el paso 4 quedó en «{cuarto['estado']}». Con Postgres el evento existe y el "
-            f"contacto se enteró: lo que no quedó es el recordatorio, y eso se lee en las dos "
-            f"claves de `cita`, no en el estado del paso.",
-        )
-        assert cita.get("confirmacion_enviada") is True, roto(
-            RECORDATORIO,
-            "sin recordatorio, la cita y la confirmación por WhatsApp salen igual. Acá no salió "
-            "la confirmación: el freno del recordatorio se llevó puesto el paso entero.",
-        )
-        return
 
     assert programado is True, roto(
         RECORDATORIO,
@@ -1793,8 +1765,9 @@ def test_recordatorio_el_trabajo_que_dispara_manda_por_enviar(
       **Texto libre acá es el segundo camino**, y lo que se pierde no es un aviso: es el número de
       WhatsApp del negocio.
 
-    Las dos van sobre SQLite, que es donde el recordatorio existe: con Postgres queda declarado
-    detenido y no hay trabajo que disparar. Ver `blueprint/00-contrato.md` § 8.
+    Las dos van sobre SQLite, que es donde el scheduler se puede leer sin una base Postgres de
+    verdad: con Postgres el trabajo también queda, por `psycopg2-binary`. Ver
+    `blueprint/00-contrato.md` § 8.
     """
     entorno_de_agenda(entorno, tmp_path, base=f"sqlite:///{tmp_path}/wca.db")
     doble = ServiciosFalsos(evento_id=f"evt_del_disparo_{cuando.replace(' ', '_')}")

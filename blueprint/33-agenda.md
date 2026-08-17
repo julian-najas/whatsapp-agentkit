@@ -483,24 +483,24 @@ devuelve la forma async: `agente/base.py` expone las dos y no una sola. La tabla
 `blueprint/00-contrato.md` § 8 y la verificación en `blueprint/34-crm.md`, paso 2.
 
 **Con Postgres el recordatorio anda: `psycopg2-binary` está fijado.** `url_sincrona()` devuelve la
-URL síncrona y el jobstore se arma. El fallback sigue como defensa: si el driver faltara,
-`url_sincrona()` levanta `RecordatorioSinDriver`, el paso 4 deja `cita.recordatorio_programado` en
-falso con el motivo escrito, y la cita y la confirmación por WhatsApp salen igual. Con el driver
-fijado, ese fallback no se dispara y el recordatorio se programa. El paso 4 lo escribe así:
+URL síncrona y el jobstore se arma. `RecordatorioSinDriver` queda únicamente para una base que no
+tiene driver síncrono soportado —ni SQLite ni Postgres—: el paso 4 lo atrapa, deja
+`cita.recordatorio_programado` en falso con el motivo escrito, y la cita y la confirmación por
+WhatsApp salen igual. El paso 4 lo escribe así:
 
 ```
 la cita del 2026-03-02 11:00 quedó agendada y la confirmación salió; el recordatorio
-de 24 horas antes no se pudo programar sobre esta base de datos. Con SQLite anda. Si
-estás en Postgres, avisale vos al contacto el día anterior hasta que esto se destrabe.
+de 24 horas antes no se pudo programar: la base no tiene driver síncrono soportado.
+SQLite y Postgres sí, y el recordatorio sale con cualquiera de las dos.
 ```
 
-Con SQLite funciona entero: `sqlite3` es de la biblioteca estándar y no hay nada que fijar.
-Levantar la detención es un cambio del kit y no un paso de tu construcción —`PINES.md`,
-`plantillas/infra/requirements.txt` y `plantillas/MANIFIESTO.json` se mueven juntos, y el
-procedimiento está en `blueprint/00-contrato.md` § 8—. **El Paso 2 acaba de hacer ese recorrido
-entero con la librería de RS256**, así que hay un ejemplo trabajado de cómo se levanta una: se
-verifica contra PyPI, se fija con `==` y con fecha, se instala, y recién ahí se reescribe el
-archivo que la esperaba. Lo que no se hace es improvisar el pin.
+Con SQLite funciona entero: `sqlite3` es de la biblioteca estándar y no hay nada que fijar, y con
+Postgres funciona con `psycopg2-binary`, fijado en `PINES.md` y en
+`plantillas/infra/requirements.txt` —esos archivos y `plantillas/MANIFIESTO.json` se mueven juntos
+cuando un pin cambia, y el procedimiento está en `blueprint/00-contrato.md` § 8—. **El Paso 2 acaba
+de hacer ese recorrido entero con la librería de RS256**, así que hay un ejemplo trabajado de cómo
+se fija una: se verifica contra PyPI, se fija con `==` y con fecha, se instala, y recién ahí se
+reescribe el archivo que la esperaba. Lo que no se hace es improvisar el pin.
 
 **El barrido al arrancar no es opcional, y desde esta ronda tiene una aserción encima.** Un trabajo
 `date` cuya hora pasó mientras el servicio estuvo caído se descarta solo: el `misfire_grace_time`
@@ -757,22 +757,19 @@ la confirmación por WhatsApp. El horario ocupado que no se pisa.
 confirmación explícita y con un horario elegido, el ciclo crea el evento y devuelve el `evento_id`
 que dio Google, tanto con `authorized_user` —el token sale de un formulario— como con
 `service_account` —el token sale de un JWT firmado con RS256, que `PyJWT` y `cryptography` ahora
-firman—. No quedó ninguna rama detenida en este archivo salvo la del recordatorio con Postgres, que
-es del Paso 4 y de otra librería. Lo que ya no existe es la tercera conducta: una `cita` en la
-salida sin un evento en el calendario.
+firman—. No quedó ninguna rama detenida en este archivo. Lo que ya no existe es la tercera
+conducta: una `cita` en la salida sin un evento en el calendario.
 
-**El recordatorio de 24 horas depende de tu base, y esto es lo que quedó:**
+**El recordatorio de 24 horas anda con las dos bases, y esto es lo que quedó:**
 
 - **Con SQLite**, programado en el scheduler del proceso, sobre la misma base, con barrido al
   arrancar y saliendo por `enviar()` como plantilla. **Las tres mitades tienen una aserción cada
   una desde esta ronda**: que quede el trabajo, que el trabajo mande al dispararse, y que el
   barrido lo devuelva cuando el `misfire` se lo llevó. Antes había una sola —la primera—, y las
   otras dos se podían contestar con un `return` pelado y una frase de la prosa.
-- **Con Postgres —el camino recomendado del despliegue—, detenido.** `url_sincrona()` levanta
-  `RecordatorioSinDriver`, `cita.recordatorio_programado` queda en falso con el motivo escrito, y la
-  cita y la confirmación salen igual. Se levanta fijando un driver síncrono en `PINES.md`, que es un
-  cambio del kit: la decisión está en `blueprint/00-contrato.md` § 8 y los tres archivos que se
-  mueven juntos, en `PENDIENTES.md` → 8.
+- **Con Postgres —el camino recomendado del despliegue—, programado igual.** `url_sincrona()`
+  devuelve `postgresql://…` y el jobstore se arma con `psycopg2-binary`, fijado en `PINES.md`. La
+  decisión está en `blueprint/00-contrato.md` § 8.
 
 Y queda una cosa que ninguna prueba de acá cierra: la plantilla del recordatorio aprobada por Meta,
 el pendiente 3 de `PENDIENTES.md`, que se da de alta antes de la primera cita real. El pendiente 4,

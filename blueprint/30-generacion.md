@@ -293,7 +293,7 @@ def _armar(esquema: str, netloc: str, path: str, query: str, fragmento: str) -> 
 
 
 class RecordatorioSinDriver(RuntimeError):
-    """No hay driver síncrono fijado en PINES.md. Ver blueprint/00-contrato.md § 8."""
+    """La base no tiene driver síncrono soportado. SQLite y Postgres (`psycopg2-binary`) sí."""
 
 
 def url_sincrona(cruda: str | None) -> str:
@@ -301,16 +301,18 @@ def url_sincrona(cruda: str | None) -> str:
     if not cruda:
         return "sqlite:///./wca.db"
     p = urlsplit(cruda)
-    if p.scheme.split("+")[0] == "sqlite":
+    esquema = p.scheme.split("+")[0]
+    if esquema == "sqlite":
         return _armar("sqlite", p.netloc, p.path, p.query, p.fragment)
+    if esquema in ("postgres", "postgresql"):
+        return _armar("postgresql", p.netloc, p.path, p.query, p.fragment)
     # Este texto termina en `pasos[3].motivo`, que es campo declarado de
     # `contratos/salida.schema.json` y viaja en la salida del ciclo. O sea: lo lee gente que no
-    # tiene por qué saber qué es un jobstore ni dónde vive PINES.md. Se escribe para esa
-    # persona, y el detalle técnico queda en `PENDIENTES.md`.
+    # tiene por qué saber qué es un jobstore. Se escribe para esa persona.
     raise RecordatorioSinDriver(
-        "la cita quedó agendada y la confirmación salió; el recordatorio de 24 horas antes no "
-        "se pudo programar sobre esta base de datos. Con SQLite anda. Si estás en Postgres, "
-        "avisale vos al contacto el día anterior hasta que esto se destrabe")
+        f"la cita quedó agendada y la confirmación salió; el recordatorio de 24 horas antes no "
+        f"se pudo programar: la base «{esquema}» no tiene driver síncrono soportado. SQLite y "
+        f"Postgres sí, y el recordatorio sale con cualquiera de las dos.")
 ```
 
 `postgres://` es lo que entregan Railway y Supabase, y SQLAlchemy no lo carga desde la 1.4.
