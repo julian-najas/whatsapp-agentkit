@@ -2,13 +2,12 @@
 
 Lo que este kit no puede cerrar solo, y que por lo tanto queda para tu máquina y tu cuenta.
 
-Son cinco clases de cosas. Una: lo que la compuerta no prueba porque probarlo pide credenciales
+Son cuatro clases de cosas. Una: lo que la compuerta no prueba porque probarlo pide credenciales
 reales. Otra: una carrera con el proveedor que no se decide leyendo documentación, se mide. La
-tercera: una pieza que el kit dejó detenida a propósito, porque destrabarla es un cambio del kit y
-no un paso de tu construcción. La cuarta: los campos del contrato de salida que ninguna prueba
-afirma, con la corrida que los cuenta —hoy no queda ninguno, y la corrida se explica igual porque
-es la que vas a correr vos—. Y la quinta, que no es tuya sino nuestra: lo que un chequeo de la
-compuerta no alcanza a ver, escrito para que nadie lo lea como si lo viera.
+tercera: los campos del contrato de salida que ninguna prueba afirma, con la corrida que los cuenta
+—hoy no queda ninguno, y la corrida se explica igual porque es la que vas a correr vos—. Y la
+cuarta, que no es tuya sino nuestra: lo que un chequeo de la compuerta no alcanza a ver, escrito
+para que nadie lo lea como si lo viera.
 
 Cerrá lo que te toque y escribí acá abajo qué te dio. Este archivo es tuyo desde que clonás.
 
@@ -60,13 +59,13 @@ Nadie se entera hasta que alguien no aparece a una reunión.
 
 ### 4 · El calendario compartido con la cuenta de servicio
 
-**Sólo si vas por `service_account`.** El camino que llega hasta el final es `authorized_user`,
-y ese no comparte nada: el calendario ya es tuyo. La rama `service_account` anda desde esta
-ronda: `PINES.md` fija `PyJWT` y `cryptography` para firmar el JWT RS256 (ver `blueprint/33-agenda.md`
-Paso 2).
+**Sólo si vas por `service_account`.** La rama anda: `PINES.md` fija `PyJWT` y `cryptography` para
+firmar el JWT RS256 (ver `blueprint/33-agenda.md` Paso 2). El camino `authorized_user` no comparte
+nada: el calendario ya es tuyo.
 
-Si algún día se destraba: crear la cuenta y bajar el JSON no alcanza: hay que compartir el
-calendario con el correo de esa cuenta, a mano, desde la interfaz de Google.
+Lo que ninguna librería resuelve es compartir el calendario: crear la cuenta y bajar el JSON no
+alcanza; hay que compartir el calendario con el correo de esa cuenta, a mano, desde la interfaz de
+Google.
 
 **Cómo lo cerrás.** Compartilo con permiso de hacer cambios y creá un evento de prueba.
 
@@ -111,35 +110,15 @@ nombra el canal en el aviso, pero no redirige nada.
 **Cómo se ve cuando falla.** Las escalaciones aparecen en el canal equivocado, o en un canal
 privado que ve una sola persona.
 
-### 8 · El recordatorio de 24 horas, si desplegás con Postgres
+### 8 · El recordatorio de 24 horas con Postgres
 
-Este no lo cerrás con una credencial: está detenido en el kit y hay que destrabarlo.
+Destrabado el 2026-08-17: `psycopg2-binary==2.9.12` está fijado en `PINES.md` y en
+`plantillas/infra/requirements.txt`, así que el jobstore síncrono de APScheduler tiene su driver
+también en el camino recomendado, Railway con Postgres. El recordatorio funciona con SQLite y con
+Postgres.
 
-Con SQLite el recordatorio anda entero. Con Postgres —o sea en el camino recomendado del
-despliegue, Railway con Postgres— **no existe**. El jobstore de APScheduler 3 es síncrono y pide la
-URL sin `+asyncpg`, y el driver síncrono que esa URL necesita no está fijado en `PINES.md` ni en
-`plantillas/infra/requirements.txt`. Fijar un pin que nadie verificó contra PyPI rompe el invariante
-6, así que el kit lo declara detenido en vez de improvisarlo. La decisión está en
-`blueprint/00-contrato.md` § 8.
-
-Lo que pasa mientras tanto: `url_sincrona()` levanta `RecordatorioSinDriver`, el paso 4 deja
-`cita.recordatorio_programado` en falso con el motivo en `pasos[3].motivo`, y **la cita y la
-confirmación por WhatsApp salen igual**. Se dice al agendar, no la noche anterior a la reunión.
-
-**Cómo lo cerrás.** Tres archivos que se mueven juntos, y ninguno es un paso de tu construcción:
-
-1. `PINES.md`: la línea del driver síncrono, verificada contra PyPI, con más de 72 horas de reposo.
-2. `plantillas/infra/requirements.txt`: la misma línea, copiada desde ahí.
-3. `python3 scripts/hash_plantillas.py --escribir`, para que `plantillas/MANIFIESTO.json` vuelva a
-   coincidir. Sin eso el chequeo 02 falla con `manifiesto/kit_viejo`.
-
-Mientras no lo cierres tenés dos salidas y las dos son legítimas: quedarte en SQLite, o mandar el
-recordatorio a mano desde `/bandeja`, que es donde queda anotado con su hora.
-
-**Cómo se ve cuando falla.** Si armaste el jobstore pasando por `url_sincrona()`, no se ve como una
-falla: se ve como el motivo escrito el día que agendás, que es la conducta declarada. Si lo armaste
-sin pasar por ahí, se ve como `No module named 'psycopg2'` en el arranque, y lo que mirás es un
-servicio que no levanta y una traza que no nombra ni al recordatorio ni a la cita.
+Lo único que sigue dependiendo de vos es la plantilla del recordatorio (pendiente 3): la
+aprobación la da Meta y tarda.
 
 ### 9 · `META_APP_SECRET`, la tercera credencial de Meta
 

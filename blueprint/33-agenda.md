@@ -20,10 +20,10 @@ contacto —el primer hueco libre, el más cercano, el que sea— es exactamente
 a ir nadie. El campo está en `contratos/entrada.schema.json`, adentro de `mensaje`, y el Paso 3 lo
 escribe entero: de dónde sale, quién lo llena y qué pasa cuando no está.
 
-**Una advertencia que va arriba y no al final: con Postgres el recordatorio de 24 horas queda
-detenido.** El jobstore de APScheduler es síncrono y el driver síncrono no está fijado en
-`PINES.md`. La cita se crea y la confirmación sale igual. Con SQLite el recordatorio anda entero. El
-Paso 4 lo escribe con todas las letras y la decisión está en `blueprint/00-contrato.md` § 8.
+**El recordatorio de 24 horas anda con SQLite y con Postgres.** El jobstore de APScheduler es
+síncrono y el driver síncrono, `psycopg2-binary`, está fijado en `PINES.md` y en
+`plantillas/infra/requirements.txt`. El Paso 4 lo escribe con todas las letras y el mecanismo está en
+`blueprint/00-contrato.md` § 8.
 
 ---
 
@@ -482,12 +482,11 @@ convierte la primera programación de cada cita en una excepción.
 devuelve la forma async: `agente/base.py` expone las dos y no una sola. La tabla de las dos está en
 `blueprint/00-contrato.md` § 8 y la verificación en `blueprint/34-crm.md`, paso 2.
 
-**Con Postgres el recordatorio queda detenido, y se dice al agendar.** `url_sincrona()` levanta
-`RecordatorioSinDriver` porque el driver síncrono no está fijado en `PINES.md`, y fijar un pin que
-nadie verificó contra PyPI rompe el invariante 6. El paso 4 deja `cita.recordatorio_programado` en
-falso con el motivo escrito, **y la cita y la confirmación por WhatsApp salen igual**. El paso queda
-en `hecho`, no en `fallado`: el evento existe y el contacto se enteró; lo que no quedó es el
-recordatorio, y se lee en esas dos claves. A vos se te dice así, al agendar y no la noche anterior:
+**Con Postgres el recordatorio anda: `psycopg2-binary` está fijado.** `url_sincrona()` devuelve la
+URL síncrona y el jobstore se arma. El fallback sigue como defensa: si el driver faltara,
+`url_sincrona()` levanta `RecordatorioSinDriver`, el paso 4 deja `cita.recordatorio_programado` en
+falso con el motivo escrito, y la cita y la confirmación por WhatsApp salen igual. Con el driver
+fijado, ese fallback no se dispara y el recordatorio se programa. El paso 4 lo escribe así:
 
 ```
 la cita del 2026-03-02 11:00 quedó agendada y la confirmación salió; el recordatorio

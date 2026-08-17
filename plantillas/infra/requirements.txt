@@ -2,7 +2,7 @@
 #
 # Fuente única: PINES.md. Un número que esté acá y no allá está mal acá.
 # Se fija con ==, nunca con un piso: un piso instala la versión que salió ayer,
-# que no probó nadie. Verificado contra PyPI el 2026-08-14.
+# que no probó nadie. Verificado contra PyPI el 2026-08-17.
 #
 # Python 3.11 a 3.14. El contenedor corre 3.12; ver Dockerfile.
 
