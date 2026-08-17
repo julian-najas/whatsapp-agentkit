@@ -104,15 +104,11 @@ Dos cosas van en el código y no en el tablero: la URL se reescribe a `postgresq
 argumento suelto hasta reventar—. Eso lo hace `normalizar_url()`, en `agente/base.py`, y el TLS se
 pide por `connect_args`.
 
-**Con Postgres el recordatorio de 24 horas queda detenido, y se dice al agendar.** El jobstore de
-APScheduler es síncrono: pide la URL sin `+asyncpg`, o sea un driver síncrono, y ese driver **no
-está fijado en `PINES.md`**. No se inventa uno acá: un pin que nadie verificó contra PyPI rompe el
-invariante 6. Entonces `url_sincrona()` levanta `RecordatorioSinDriver`, el paso 4 deja
-`cita.recordatorio_programado` en falso con el motivo escrito, y **la cita y la confirmación por
-WhatsApp salen igual**. Con SQLite el recordatorio funciona entero, porque `sqlite3` es de la
-biblioteca estándar y no hay nada que fijar. Cómo se levanta la detención —tres archivos que se
-mueven juntos, ninguno de ellos un paso de tu construcción— está en `blueprint/00-contrato.md` § 8.
-Si elegís Postgres, anotá en `PENDIENTES.md` que ese recordatorio no sale.
+**El recordatorio de 24 horas anda con Postgres y con SQLite.** El jobstore de APScheduler es
+síncrono: pide la URL sin `+asyncpg`, o sea un driver síncrono, y `psycopg2-binary` está fijado en
+`PINES.md` y en `plantillas/infra/requirements.txt`. `url_sincrona()` devuelve la URL síncrona y el
+recordatorio se programa. Con SQLite anda entero, porque `sqlite3` es de la biblioteca estándar. El
+mecanismo y el fallback están en `blueprint/00-contrato.md` § 8.
 
 **Tenés que ver.** En `curl -s https://<tu-dominio>/salud`, `"base":"postgres"`. Si dice `sqlite`,
 escribe en un archivo que el próximo despliegue se lleva puesto.
@@ -304,8 +300,8 @@ días, y eso conviene empezarlo antes de tocar el código.
 ## Qué quedó hecho
 
 El servicio arriba con el `Dockerfile` y el `railway.json` sin editar; Postgres por referencia, con
-el driver fijado, el `sslmode` fuera de la cadena y el recordatorio de 24 horas declarado detenido si
-elegiste Postgres; las variables cargadas sin que ninguna pasara por una tool call, incluida
+el driver fijado, el `sslmode` fuera de la cadena y el recordatorio de 24 horas programado; las
+variables cargadas sin que ninguna pasara por una tool call, incluida
 `META_APP_SECRET` si el proveedor es `meta`; el alta del webhook contra `/webhook/<proveedor>` con el
 token idéntico de los dos lados; y una entrega real que terminó en un borrador esperando aprobación.
 

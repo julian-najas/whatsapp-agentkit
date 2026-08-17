@@ -135,10 +135,9 @@ descartar `sslmode`, ese nodo se pone rojo y ningún otro de la suite se mueve.
   parámetro. Es la mitad que se olvida siempre, y la descarta `normalizar_url()`.
 - **`ImportError: cannot import name 'url_sincrona'`.** `agente/base.py` quedó con una sola función.
   Volvé al paso de `base.py` de `blueprint/30-generacion.md`: son dos, por § 8.
-- **`url_sincrona()` devuelve una URL de Postgres en vez de levantar.** Alguien fijó un driver
-  síncrono por su cuenta. Si está verificado contra PyPI y anotado en `PINES.md`, está bien y el
-  recordatorio del archivo 33 deja de estar detenido; si no está en `PINES.md`, `deps-imports` lo
-  marca y con razón.
+- **`url_sincrona()` devuelve una URL de Postgres.** `psycopg2-binary` está fijado en `PINES.md`,
+  así que es la conducta esperada: el recordatorio se programa. Si el driver no estuviera en
+  `PINES.md`, `deps-imports` lo marca y con razón.
 - **`ModuleNotFoundError: No module named 'asyncpg'`.** Otro `requirements.txt`. `asyncpg` no está en
   ningún `import`: el chequeo `deps-drivers` busca `+(\w+)://` justo por esto.
 - **`unable to open database file`.** Tres barras es relativo y cuatro absoluto; en el contenedor el

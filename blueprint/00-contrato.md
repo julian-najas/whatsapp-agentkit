@@ -437,51 +437,28 @@ proveedor configurado es `meta`.
 
 El jobstore de APScheduler 3 es **síncrono**: necesita la URL sin `+asyncpg` y sin `+aiosqlite`.
 `34-crm.md` dice que `normalizar_url` es la única función del proyecto y siempre devuelve la forma
-async. `psycopg2-binary` **está fijado en `PINES.md` y en `plantillas/infra/requirements.txt`**
-desde el 2026-08-17. O sea que en el camino recomendado, Railway con Postgres, el recordatorio de
-24 horas anda.
-
-**La decisión: no se fija un driver síncrono, y se declara detenido.** Escribir un pin que nadie
-verificó contra PyPI rompe el invariante 6 y la regla de las 72 horas de `PINES.md`.
-
-**Detenido no quiere decir para siempre, y ya hay un ejemplo trabajado.** La otra detención del
-kit —la librería de RS256 de `33-agenda.md` paso 2— se levantó verificando las dos candidatas
-contra PyPI, eligiendo la que la compuerta sabe resolver, fijándola con `==` y con fecha,
-instalándola y recién ahí reescribiendo el archivo que la esperaba. Este driver se levanta con el
-mismo recorrido y con los mismos tres archivos moviéndose juntos, que son los de acá abajo.
+async. El driver síncrono, `psycopg2-binary==2.9.12`, está fijado en `PINES.md` y en
+`plantillas/infra/requirements.txt` desde el 2026-08-17. O sea que en el camino recomendado, Railway
+con Postgres, el recordatorio de 24 horas anda.
 
 **`agente/base.py` expone dos funciones y no una:**
 
 | Función | Devuelve | `sslmode` y compañía |
 |---|---|---|
 | `normalizar_url(cruda)` | `postgresql+asyncpg://…` · `sqlite+aiosqlite:///./wca.db` | los descarta: asyncpg no los entiende |
-| `url_sincrona(cruda)` | `sqlite:///./wca.db` · con Postgres, levanta `RecordatorioSinDriver` | los conserva: libpq sí los entiende |
+| `url_sincrona(cruda)` | `sqlite:///./wca.db` · `postgresql://…` con `psycopg2-binary` | los conserva: libpq sí los entiende |
 
 **La conducta, por base:**
 
 - **SQLite.** El recordatorio funciona entero. `sqlite3` es de la biblioteca estándar y no hace
   falta fijar nada.
-- **Postgres.** `url_sincrona()` levanta `RecordatorioSinDriver`. El paso 4 deja
-  `cita.recordatorio_programado` en falso con el motivo escrito; **la cita y la confirmación por
-  WhatsApp salen igual**. Se dice al agendar, no después.
+- **Postgres.** `url_sincrona()` devuelve la URL síncrona y el jobstore se arma con
+  `psycopg2-binary`. El recordatorio se programa.
 
-```
-recordatorio de la cita del 2026-03-02 11:00: no lo puedo programar.
-El jobstore de APScheduler es síncrono y con Postgres pide un driver síncrono que no está
-fijado en PINES.md. La cita y la confirmación sí salen. Con SQLite el recordatorio anda.
-Ver blueprint/00-contrato.md § 8 y PENDIENTES.md.
-```
-
-**Cómo se levanta la detención**, para que quien lo haga no lo haga a medias. Los tres archivos se
-mueven juntos, y ninguno es un paso de tu construcción: es un cambio del kit.
-
-1. `PINES.md`: la línea del driver síncrono, verificada contra PyPI, con más de 72 horas de reposo.
-2. `plantillas/infra/requirements.txt`: la misma línea, copiada desde ahí.
-3. `python3 scripts/hash_plantillas.py --escribir`, para que `plantillas/MANIFIESTO.json` vuelva a
-   coincidir. Sin eso el chequeo 02 falla con `manifiesto/kit_viejo`.
-
-Y `PENDIENTES.md` suma la entrada: «el recordatorio de 24 h con Postgres, detenido hasta que se
-fije un driver síncrono».
+El fallback sigue como defensa: si `psycopg2-binary` no estuviera instalado, `url_sincrona()`
+levanta `RecordatorioSinDriver`, el paso 4 deja `cita.recordatorio_programado` en falso con el
+motivo escrito, y la cita y la confirmación por WhatsApp salen igual. Con el driver fijado, ese
+fallback no se dispara.
 
 ---
 
