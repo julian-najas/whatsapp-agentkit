@@ -481,5 +481,4 @@ verde.
 
 Anotalo en `.wca-estado.json`: `fase` en `multimodal` y el sha256 de cada archivo escrito.
 
-**Próximo archivo:** `blueprint/33-agenda.md`, que crea la cita y deja el recordatorio programado
-—o declarado detenido, según tu base.
+**Próximo archivo:** `blueprint/33-agenda.md`, que crea la cita y deja el recordatorio programado.
