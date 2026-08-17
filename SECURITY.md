@@ -27,8 +27,8 @@ Un defecto en el kit, que se le va a copiar a todos los que lo clonen:
   issue, en un video o en una captura, esto no lo arregla nadie desde acá: **rotalo ahora** en
   el panel de Meta y volvé después. Un token que se hizo público hay que dar de baja, no
   borrar del post.
-- **Un problema del código que Claude escribió en tu máquina.** No es el mismo árbol que el
-  mío: el blueprint dice qué construir, y de la fase 30 en adelante lo que hay en `agente/` lo
+- **Un problema del código que Claude escribió en tu máquina.** No es el mismo árbol que el de
+  este kit: el blueprint dice qué construir, y de la fase 30 en adelante lo que hay en `agente/` lo
   escribió tu corrida. Contalo igual, con la salida de la compuerta, y si resulta que el
   blueprint lo induce, ahí sí pasa a ser un defecto del kit.
 - **Un fallo de WhatsApp, de Meta, de Zernio, de Google o de Anthropic.** Eso va al proveedor.
@@ -38,9 +38,9 @@ Un defecto en el kit, que se le va a copiar a todos los que lo clonen:
 **En privado, nunca en un issue.** Un issue es público desde el segundo cero y no se puede
 despublicar.
 
-[**Abrir un aviso privado**](https://github.com/Hainrixz/whatsapp-closer-agentkit/security/advisories/new)
+[**Abrir un aviso privado**](https://github.com/julian-najas/whatsapp-agentkit/security/advisories/new)
 
-Si esa página no te carga, escribime por el canal donde estés viendo esto y decí sólo que es
+Si esa página no te carga, escribinos por el canal donde estés viendo esto y decí sólo que es
 de seguridad, sin el detalle. El detalle va después, en privado.
 
 Poné, si lo tenés:
@@ -54,25 +54,25 @@ Poné, si lo tenés:
 
 ## Qué esperar
 
-Esto lo mantiene una persona, no una empresa: no hay guardia ni acuerdo de tiempos. Lo que sí
-hay es esto, y lo cumplo o lo digo.
+Esto lo mantiene Cosas Agénticas. No hay guardia ni acuerdo de tiempos. Lo que sí hay es esto,
+y lo cumplimos o lo decimos.
 
 | | |
 |---|---|
-| Acuso recibo | dentro de 72 horas |
-| Te digo si lo tomo como defecto del kit, y por qué | dentro de 7 días |
-| Arreglo, con el chequeo que lo detecte de ahora en más | según qué sea, y te lo cuento |
+| Acusamos recibo | dentro de 72 horas |
+| Te decimos si lo tomamos como defecto del kit, y por qué | dentro de 7 días |
+| Arreglamos, con el chequeo que lo detecte de ahora en más | según qué sea, y te lo contamos |
 
 Un arreglo de seguridad entra con la prueba que lo agarra. Un parche sin prueba lo vuelve a
 abrir la siguiente ronda.
 
-**Crédito.** Si querés, va tu nombre en el aviso y en `CITAS.md`. Si preferís que no, tampoco.
+**Crédito.** Si querés, va tu nombre en el aviso. Si preferís que no, tampoco.
 Decilo cuando reportás.
 
 **Nada de programas de recompensa.** No hay plata de por medio y no la va a haber. Lo digo de
 entrada para que nadie pierda el tiempo.
 
-## Las versiones que miro
+## Las versiones que miramos
 
 La última publicada. No hay ramas de soporte hacia atrás: el kit se clona entero y se vuelve a
 clonar entero.

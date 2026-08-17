@@ -1,4 +1,4 @@
-# Cerrador de WhatsApp · blueprint
+# WhatsApp AgentKit · blueprint
 
 Este archivo se paga en cada turno y es lo único que vuelve entero después de una
 compactación. Lo que sobra acá sobra siempre.
@@ -59,3 +59,19 @@ hacer, decilo con el motivo en vez de rodearlo.
 
 El agente le habla a los clientes con el tratamiento elegido en la entrevista — `tú`, `vos` o
 `usted` — que no tiene por qué ser el tuyo.
+
+
+## Identidad y marca
+
+La identidad de producto y comunicación de este repositorio es **Cosas Agénticas**
+(https://cosasagenticas.com). El producto se llama **WhatsApp AgentKit**.
+
+No reintroducir branding, enlaces comerciales, CTAs ni referencias promocionales del proyecto
+upstream.
+
+Mantener todas las atribuciones legalmente exigidas por licencias de terceros —como el aviso
+de copyright MIT en `LICENSE`— en sus ubicaciones correspondientes. No eliminarlas ni
+falsificarlas.
+
+Cuando falte un dato real (URL del repositorio, organización de GitHub, sitio de docs), usar el
+no lo inventes: usá un placeholder inequívoco.

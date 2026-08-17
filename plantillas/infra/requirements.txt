@@ -1,4 +1,4 @@
-# Pines del cerrador de WhatsApp.
+# Pines del agente de WhatsApp.
 #
 # Fuente única: PINES.md. Un número que esté acá y no allá está mal acá.
 # Se fija con ==, nunca con un piso: un piso instala la versión que salió ayer,

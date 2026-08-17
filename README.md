@@ -1,10 +1,10 @@
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="assets/hero-oscuro.svg">
   <source media="(prefers-color-scheme: light)" srcset="assets/hero-claro.svg">
-  <img src="assets/hero-claro.svg" alt="Cerrador de WhatsApp">
+  <img src="assets/hero-claro.svg" alt="WhatsApp AgentKit">
 </picture>
 
-# Cerrador de WhatsApp
+# WhatsApp AgentKit
 
 Alguien te escribe a las once de la noche preguntando cuánto sale. Le contestás a las nueve de
 la mañana y ya compró en otro lado. O le contestás bien, cerrás la reunión, y tres días después
@@ -34,8 +34,8 @@ en cada computadora. Un blueprint que dice qué hacer, qué tenés que ver en pa
 hacer cuando eso no aparece, sobrevive a esa diferencia. Un tarball de código, no.
 
 ```bash
-git clone https://github.com/Hainrixz/whatsapp-closer-agentkit
-cd whatsapp-closer-agentkit
+git clone https://github.com/julian-najas/whatsapp-agentkit
+cd whatsapp-agentkit
 claude          # y adentro:  /start
 ```
 
@@ -304,23 +304,16 @@ salir a la red, y [`SUPUESTOS.md`](SUPUESTOS.md), que son las doce que el kit de
 dónde se corrigen.
 
 - **Un paso no da lo que dice «Tenés que ver».** [Abrí un
-  issue](https://github.com/Hainrixz/whatsapp-closer-agentkit/issues/new/choose). La plantilla
+  issue](https://github.com/julian-najas/whatsapp-agentkit/issues/new/choose). La plantilla
   te pide la salida de `scripts/auditar.py`, tu versión de Python y el proveedor: con esas tres
   se puede leer el problema, y sin ellas la primera respuesta se gasta en pedirlas.
 - **Una duda, no un bug** —cómo escribir el playbook, si esto le sirve a tu negocio, qué
   proveedor elegir—:
-  [Discussions](https://github.com/Hainrixz/whatsapp-closer-agentkit/discussions).
+  [Discussions](https://github.com/julian-najas/whatsapp-agentkit/discussions).
 - **Algo de seguridad.** En privado y nunca en un issue: [`SECURITY.md`](SECURITY.md).
 
 **Nunca pegues una credencial.** Ni el `WHATSAPP_TOKEN`, ni el `META_APP_SECRET`, ni el JSON de
 la cuenta de servicio, ni tu clave de Anthropic. Un issue es público desde el segundo cero, y un
 token que pasó por ahí hay que rotarlo: borrar el mensaje no lo despublica.
-
-## De dónde salió
-
-El catálogo registra 31 pedidos. Los cinco identificadores que originaron
-la ficha están en [`CITAS.md`](CITAS.md). Publicamos el identificador y el número agregado,
-nunca el texto del comentario ni el usuario de Instagram: esa gente contestó una caja de
-preguntas de una story, no consintió aparecer en un repositorio público.
 
 Licencia MIT. Ver [`LICENSE`](LICENSE).

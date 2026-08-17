@@ -39,7 +39,7 @@ from panel.panel import router as panel_router
 # árbol ya tiene importada por nombre. Se refresca en el lugar: construir otra dejaría dos.
 ajustes.__dict__.update(Ajustes().__dict__)
 
-app = FastAPI(title="Cerrador de WhatsApp", docs_url=None, redoc_url=None, openapi_url=None)
+app = FastAPI(title="WhatsApp AgentKit", docs_url=None, redoc_url=None, openapi_url=None)
 app.include_router(panel_router)
 ```
 

@@ -1,6 +1,6 @@
 ---
 name: armar-cerrador
-description: Construye el cerrador de WhatsApp entero, fase por fase, desde el blueprint. Usala en la primera corrida del kit.
+description: Construye el agente de WhatsApp entero, fase por fase, desde el blueprint. Usala en la primera corrida del kit.
 disable-model-invocation: true
 ---
 

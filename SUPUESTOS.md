@@ -26,7 +26,7 @@ La primera semana nadie sabe todavía cómo redacta este agente con tu playbook.
 no te gustó se corrige; un mensaje que ya salió, no.
 
 **Dónde.** `contratos/entrada.schema.json` → `modo`, con `borrador` de default. El paso 3 del
-prompt en `agents/whatsapp-closer-agent.md`. La regla está en `CLAUDE.md`.
+prompt en `agents/whatsapp-agent.md`. La regla está en `CLAUDE.md`.
 
 **Cómo se corrige.** Corré `/soltar`: muestra los números de la bandeja y pasa el paso 3 a
 `automatico`. Los pasos 4 y 5 se sueltan de a uno y después. También se fuerza desde la entrada

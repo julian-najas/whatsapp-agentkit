@@ -6,7 +6,7 @@ Este archivo **no se aplica solo**. Es el texto para que lo copie quien publique
 para vos. Revisá cada uno antes de darle enter: todos tocan la configuración del repo en
 GitHub.
 
-Repo: `Hainrixz/whatsapp-closer-agentkit` · rama por defecto en GitHub: `main`
+Repo: `julian-najas/whatsapp-agentkit` · rama por defecto en GitHub: `main`
 
 ---
 
@@ -17,15 +17,14 @@ no se cumple ninguna de las tres. Esto es lo que se midió el 2026-08-14, con le
 escritura:
 
 ```console
-$ gh repo view Hainrixz/whatsapp-closer-agentkit --json visibility,pushedAt,description,homepageUrl,repositoryTopics
+$ gh repo view julian-najas/whatsapp-agentkit --json visibility,pushedAt,description,homepageUrl,repositoryTopics
 {"description":"Agente que atiende cada chat entrante de WhatsApp con perfil de setter y closer: califica, responde objeciones, agenda y deja todo escrito en el CRM.","homepageUrl":"","pushedAt":"2026-08-04T03:57:28Z","repositoryTopics":null,"visibility":"PRIVATE"}
 
-$ gh api repos/Hainrixz/whatsapp-closer-agentkit/pages
+$ gh api repos/julian-najas/whatsapp-agentkit/pages
 gh: Not Found (HTTP 404)
 
 $ git ls-tree --name-only origin/main
 .claude-plugin
-CITAS.md
 CLAUDE.md
 README.md
 agents
@@ -34,10 +33,10 @@ env.example
 pruebas
 
 $ git branch -avv
-  main                9993441 [origin/main] whatsapp-closer-agent 0.1.0
-* v1-closer           9993441 whatsapp-closer-agent 0.1.0
+  main                9993441 [origin/main] whatsapp-agent 0.1.0
+* v1-closer           9993441 whatsapp-agent 0.1.0
   remotes/origin/HEAD -> origin/main
-  remotes/origin/main 9993441 whatsapp-closer-agent 0.1.0
+  remotes/origin/main 9993441 whatsapp-agent 0.1.0
 ```
 
 Leelo así: en GitHub está el árbol de la versión 0.1.0, ocho entradas. **No están `blueprint/`,
@@ -89,8 +88,8 @@ git push origin v1-closer:main
 
 ```bash
 git rev-parse HEAD
-gh api repos/Hainrixz/whatsapp-closer-agentkit/commits/main --jq .sha
-gh api repos/Hainrixz/whatsapp-closer-agentkit/contents/docs/index.html --jq .size
+gh api repos/julian-najas/whatsapp-agentkit/commits/main --jq .sha
+gh api repos/julian-najas/whatsapp-agentkit/contents/docs/index.html --jq .size
 ```
 
 Los dos primeros imprimen la misma línea. El tercero imprime un número, no un 404.
@@ -98,7 +97,7 @@ Los dos primeros imprimen la misma línea. El tercero imprime un número, no un 
 ### Paso 3 · Pasalo a público
 
 ```bash
-gh repo edit Hainrixz/whatsapp-closer-agentkit \
+gh repo edit julian-najas/whatsapp-agentkit \
   --visibility public \
   --accept-visibility-change-consequences
 ```
@@ -112,7 +111,7 @@ verificar el plan de esta cuenta**: el token de `gh` no tiene el scope `user`, a
 **Tenés que ver.**
 
 ```bash
-gh repo view Hainrixz/whatsapp-closer-agentkit --json visibility
+gh repo view julian-najas/whatsapp-agentkit --json visibility
 ```
 
 ```json
@@ -126,7 +125,7 @@ Los dos comandos están en §1 y §2. Correlos ahora.
 **Tenés que ver.**
 
 ```bash
-gh repo view Hainrixz/whatsapp-closer-agentkit --json description,repositoryTopics
+gh repo view julian-najas/whatsapp-agentkit --json description,repositoryTopics
 ```
 
 `description` tiene que ser la de §1 —hoy todavía es la vieja, la que habla del agente y no del
@@ -141,12 +140,12 @@ Después del paso 2 sí lo tiene.
 **Tenés que ver.**
 
 ```bash
-gh api repos/Hainrixz/whatsapp-closer-agentkit/pages \
+gh api repos/julian-najas/whatsapp-agentkit/pages \
   --jq '[.status, .html_url, .source.branch, .source.path] | @tsv'
 ```
 
 `source.branch` en `main`, `source.path` en `/docs`, y `html_url` en
-`https://hainrixz.github.io/whatsapp-closer-agentkit/`. El `status` arranca en `null` o
+`<URL_DOCS_COSAS_AGENTICAS>/`. El `status` arranca en `null` o
 `building` y pasa a `built` en un minuto o dos. Repetí el comando hasta que diga `built`.
 
 ### Paso 6 · Poné la homepage
@@ -157,8 +156,8 @@ recién ahora existe.
 **Tenés que ver.**
 
 ```bash
-gh repo view Hainrixz/whatsapp-closer-agentkit --json homepageUrl
-curl -sI https://hainrixz.github.io/whatsapp-closer-agentkit/ | head -1
+gh repo view julian-najas/whatsapp-agentkit --json homepageUrl
+curl -sI <URL_DOCS_COSAS_AGENTICAS>/ | head -1
 ```
 
 El primero devuelve la URL de Pages. El segundo, `HTTP/2 200`. Si devuelve 404, Pages todavía
@@ -179,7 +178,7 @@ printf '%s' "$(sed -n '/^> /s/^> //p' ABOUT.md | head -1)" | wc -m
 El comando que la aplica:
 
 ```bash
-gh repo edit Hainrixz/whatsapp-closer-agentkit \
+gh repo edit julian-najas/whatsapp-agentkit \
   --description "Repo blueprint para Claude Code: no trae la app, trae las instrucciones para construirla en tu máquina paso a paso. Un agente que atiende cada chat de WhatsApp como setter y closer: califica, responde la objeción, agenda y escribe el CRM. 16 archivos por fase, 30 versiones fijadas, compuerta de 23 chequeos. En español."
 ```
 
@@ -217,7 +216,7 @@ de usar Whisper, ese topic se cae.
 El comando que los aplica, los veinte de una:
 
 ```bash
-gh repo edit Hainrixz/whatsapp-closer-agentkit \
+gh repo edit julian-najas/whatsapp-agentkit \
   --add-topic whatsapp \
   --add-topic whatsapp-cloud-api \
   --add-topic meta-cloud-api \
@@ -247,14 +246,14 @@ gh repo edit Hainrixz/whatsapp-closer-agentkit \
 Va la de GitHub Pages, servida desde `docs/` de la rama por defecto:
 
 ```
-https://hainrixz.github.io/whatsapp-closer-agentkit/
+<URL_DOCS_COSAS_AGENTICAS>/
 ```
 
 El comando que la pone en el About:
 
 ```bash
-gh repo edit Hainrixz/whatsapp-closer-agentkit \
-  --homepage "https://hainrixz.github.io/whatsapp-closer-agentkit/"
+gh repo edit julian-najas/whatsapp-agentkit \
+  --homepage "<URL_DOCS_COSAS_AGENTICAS>/"
 ```
 
 Esa URL no existe hasta que Pages esté prendido y apuntando a `docs/`. Si todavía no lo está,
@@ -262,7 +261,7 @@ esto lo prende. Corré esto **después** del push del paso 2 —sin `docs/` en l
 servir— y **antes** que el `--homepage` de arriba:
 
 ```bash
-gh api --method POST repos/Hainrixz/whatsapp-closer-agentkit/pages \
+gh api --method POST repos/julian-najas/whatsapp-agentkit/pages \
   -f 'source[branch]=main' \
   -f 'source[path]=/docs'
 ```
@@ -272,7 +271,7 @@ la que sea. Y si Pages ya está prendido, devuelve `409 Conflict` en vez de fall
 caso el que corresponde es el de cambiar la fuente, con `PUT` en vez de `POST`.
 
 ```bash
-gh api --method PUT repos/Hainrixz/whatsapp-closer-agentkit/pages \
+gh api --method PUT repos/julian-najas/whatsapp-agentkit/pages \
   -f 'source[branch]=main' \
   -f 'source[path]=/docs'
 ```
@@ -284,11 +283,11 @@ gh api --method PUT repos/Hainrixz/whatsapp-closer-agentkit/pages \
 Cada paso tiene su chequeo en §0. Éste es el de cierre, los seis campos juntos:
 
 ```bash
-gh repo view Hainrixz/whatsapp-closer-agentkit \
+gh repo view julian-najas/whatsapp-agentkit \
   --json visibility,description,homepageUrl,repositoryTopics \
   --jq '[.visibility, (.repositoryTopics|length), .homepageUrl] | @tsv'
-gh api repos/Hainrixz/whatsapp-closer-agentkit/pages --jq .status
-curl -sI https://hainrixz.github.io/whatsapp-closer-agentkit/ | head -1
+gh api repos/julian-najas/whatsapp-agentkit/pages --jq .status
+curl -sI <URL_DOCS_COSAS_AGENTICAS>/ | head -1
 ```
 
 Tiene que salir `PUBLIC`, `20`, la URL de Pages; después `built`; después `HTTP/2 200`. Y la

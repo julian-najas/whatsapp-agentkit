@@ -2,8 +2,8 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 360" width="1280" height="360"
      role="img" aria-labelledby="titulo descripcion"
      font-family="ui-sans-serif, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif">
-  <title id="titulo">Cerrador de WhatsApp</title>
-  <desc id="descripcion">Blueprint para construir un agente cerrador de WhatsApp, con los seis pasos del ciclo: recibir el mensaje, calificar, responder y ofrecer horarios, agendar, escribir en el CRM y pasar el chat a un humano.</desc>
+  <title id="titulo">WhatsApp AgentKit</title>
+  <desc id="descripcion">Blueprint para construir un agente de WhatsApp, con los seis pasos del ciclo: recibir el mensaje, calificar, responder y ofrecer horarios, agendar, escribir en el CRM y pasar el chat a un humano.</desc>
 
   <!-- fondo explicito: sin esto el SVG se vuelve ilegible sobre el tema contrario -->
   <rect x="0" y="0" width="1280" height="360" fill="#FFFFFF"/>
@@ -12,14 +12,14 @@
   <!-- nombre del paquete -->
   <rect x="60" y="34" width="226" height="26" rx="13" fill="#E7F2EE" stroke="#D2E4DD" stroke-width="1"/>
   <text x="72" y="52" font-size="14" fill="#0E7A62"
-        font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">whatsapp-closer-agentkit</text>
+        font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">whatsapp-agentkit</text>
 
   <!-- el default, del otro lado -->
   <rect x="1010" y="34" width="210" height="26" rx="13" fill="none" stroke="#E2E8E5" stroke-width="1"/>
   <text x="1115" y="52" font-size="14" fill="#6B7780" text-anchor="middle">modo borrador por defecto</text>
 
   <!-- titulo -->
-  <text x="60" y="112" font-size="46" font-weight="700" fill="#0F1512" letter-spacing="-0.5">Cerrador de WhatsApp</text>
+  <text x="60" y="112" font-size="46" font-weight="700" fill="#0F1512" letter-spacing="-0.5">WhatsApp AgentKit</text>
 
   <!-- que es -->
   <text x="60" y="146" font-size="18" fill="#4E5A63">Un blueprint, no una aplicación: instrucciones que Claude Code ejecuta en tu máquina</text>

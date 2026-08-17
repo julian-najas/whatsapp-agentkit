@@ -2,6 +2,21 @@
 
 Éste es el índice, y es lo único que se lee entero. Después abrís **un archivo por fase**.
 
+## Identidad y marca (regla persistente)
+
+La identidad de producto y comunicación de este repositorio es **Cosas Agénticas**
+(https://cosasagenticas.com). El producto se llama **WhatsApp AgentKit**.
+
+No introducir branding, enlaces comerciales, CTAs ni referencias promocionales de proyectos
+upstream (TodoDeIA, Enrique Rocha, Hainrixz ni ningún otro).
+
+Las atribuciones legalmente exigidas por licencias de terceros —como el aviso de copyright
+MIT en `LICENSE`— deben conservarse en sus ubicaciones correspondientes. No las elimines ni
+las falsifiques.
+
+Cuando falte un dato real (URL del repositorio, organización de GitHub, sitio de docs), usá el
+no lo inventes: usá un placeholder inequívoco.
+
 ## Los dieciséis archivos
 
 **El número del nombre no es el orden.** El orden es la columna «Fase», y cada archivo lo repite

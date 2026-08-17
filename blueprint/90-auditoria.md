@@ -40,7 +40,7 @@ es 3. O sea: con `python3` este paso no puede dar el `pass` que el paso siguient
 **Tenés que ver.** El árbol, una línea por chequeo y el resumen:
 
 ```
-auditar · whatsapp-closer-agentkit · construido
+auditar · whatsapp-agentkit · construido
 
   [ok      ] 01 blueprint-existe   16 archivo(s) citados por 28, todos con contenido
   ...
@@ -533,7 +533,7 @@ este archivo.
 - **`auditoria/excepcion`.** Un chequeo levantó una excepción: es un defecto de
   `scripts/auditar.py`, no de lo que miraba. El resto del reporte sirve igual.
 - **El hallazgo dice `kit`.** No lo arregles en tu copia: abrí un issue en
-  `github.com/Hainrixz/whatsapp-closer-agentkit` con el bloque `hallazgos` de tu `gates.json` —sacá
+  `julian-najas/whatsapp-agentkit` con el bloque `hallazgos` de tu `gates.json` —sacá
   antes cualquier cadena de conexión— y la versión de Python que usaste.
 - **Verde acá y roto contra Meta.** Es lo esperado: la compuerta no abre un socket. Lo que queda
   por cerrar a mano está en `PENDIENTES.md`.

@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "contratos/whatsapp-closer-agent/entrada/1.json",
-  "title": "Entrada del Cerrador de WhatsApp",
+  "$id": "contratos/whatsapp-agent/entrada/1.json",
+  "title": "Entrada del WhatsApp AgentKit",
   "description": "Un mensaje entrante de WhatsApp, más el catálogo, la disponibilidad y el playbook de objeciones que el agente necesita para contestarlo.",
   "type": "object",
   "additionalProperties": false,

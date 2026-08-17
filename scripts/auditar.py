@@ -5595,7 +5595,7 @@ def _main_censo(raiz: Path, args) -> int:
 
 def main(argv: list[str] | None = None) -> int:
     p = argparse.ArgumentParser(
-        description="La compuerta del cerrador de WhatsApp. Sin red y sin credenciales.")
+        description="La compuerta del agente de WhatsApp. Sin red y sin credenciales.")
     p.add_argument("--raiz", type=Path, default=RAIZ, help="raíz del kit (default: este repo)")
     p.add_argument("--formato", choices=("texto", "json"), default="texto")
     p.add_argument("--json", action="store_true", help="atajo de --formato json")

@@ -54,7 +54,7 @@ MODELOS_VIGENTES = ("claude-opus-5", "claude-sonnet-5", "claude-haiku-4-5")
 REPOSO_HORAS = 72
 VENCE_DIAS = 90
 API = "https://pypi.org/pypi/{}/json"
-AGENTE = "verificar_pines (blueprint whatsapp-closer-agentkit)"
+AGENTE = "verificar_pines (blueprint whatsapp-agentkit)"
 AUSENTE = "no existe en PyPI (404)"
 
 # Un pin es `nombre==version`, con comentario opcional atrás. `>=` no matchea a

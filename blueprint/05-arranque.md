@@ -94,7 +94,7 @@ falla, quien instala descubre lo que le falta de a una cosa por vez.
   secretos y el de `knowledge/`—. Con un ZIP no fallan: saltean. Cloná y volvé a empezar:
 
   ```bash
-  git clone https://github.com/Hainrixz/whatsapp-closer-agentkit.git
+  git clone https://github.com/julian-najas/whatsapp-agentkit.git
   ```
 - **`sistema` imprime algo que no está en la lista** (`SunOS`, `FreeBSD`, Android en Termux). No hay
   instrucción probada para ese sistema y no la voy a inventar. Preguntá con qué gestor de paquetes
