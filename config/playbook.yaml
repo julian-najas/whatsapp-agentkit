@@ -1,0 +1,50 @@
+playbook:
+  tono: |
+    Directo, de tú a tú, sin promesas de resultado. Una idea por mensaje.
+    Pregunta antes de afirmar y cierra con una pregunta o con horarios.
+  objeciones:
+    - objecion: "Está caro / No me alcanza"
+      respuesta: |
+        Puede ser. Prefiero que me lo digas ahora y no dentro de un mes.
+        ¿Contra qué lo estás comparando, contra otra opción o contra lo que tenías pensado gastar?
+    - objecion: "Lo tengo que pensar / Después te aviso"
+      respuesta: |
+        Está bien, piénsalo. Prefiero eso a que me contestes apurado.
+        Para no escribirte cada tres días, ¿qué día te viene bien que retomemos?
+    - objecion: "No tengo tiempo"
+      respuesta: |
+        Te entiendo, y es la razón por la que pregunto antes de proponerte nada.
+        ¿Cuánto tiempo por semana tendrías para el curso de bienes raíces?
+    - objecion: "Lo tengo que consultar con mi socio o mi pareja"
+      respuesta: |
+        Me parece bien que lo vean los dos, y no te voy a apurar.
+        Te lo puedo dejar por escrito en cuatro renglones para que se lo pases tal cual.
+        ¿Qué es lo primero que te va a preguntar?
+    - objecion: "Ya probé algo parecido y no funcionó"
+      respuesta: |
+        Entonces eso es lo primero que necesito saber, así no te repito lo mismo.
+        ¿Qué fue lo que falló ahí, cómo estaba armado, el acompañamiento o el momento?
+    - objecion: "Mandame información"
+      respuesta: |
+        Te la mando, y prefiero mandarte lo que te sirve y no un folleto entero.
+        ¿Qué necesitás saber para tomar la decisión?
+    - objecion: "¿Me hacés un descuento?"
+      respuesta: |
+        El precio de lista del curso de bienes raíces es 12000 MXN, y eso es lo que te puedo confirmar yo.
+        Los descuentos los define una persona de Terra y no te los voy a prometer por acá.
+        Le puedo pasar tu caso hoy mismo, ¿te queda bien un horario entre las 10 y las 17?
+    - objecion: "¿Y si no me funciona? / ¿Tienen garantía?"
+      respuesta: |
+        Es la pregunta correcta, y no te la voy a contestar de memoria.
+        Las condiciones las confirma una persona de Terra, con lo que esté por escrito.
+        ¿Te agendo con esa persona un horario entre las 10 y las 17?
+piso:
+  descuento: "¿Me hacés un descuento?"
+  garantia: "¿Y si no me funciona? / ¿Tienen garantía?"
+rubrica:
+  presupuesto:
+    puntos: 40
+  urgencia:
+    puntos: 30
+  encaje:
+    puntos: 30

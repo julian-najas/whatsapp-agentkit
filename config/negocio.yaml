@@ -1,0 +1,15 @@
+catalogo:
+  - nombre: Curso de bienes raíces
+    precio: 12000
+    moneda: MXN
+rango:
+  minimo: 8000
+  maximo: 40000
+escalacion:
+  - humano
+  - persona real
+  - reclamo
+  - abogado
+  - estafa
+  - cancelar
+canal_interno: "#ventas-escalaciones"
