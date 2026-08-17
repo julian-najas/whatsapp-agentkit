@@ -437,9 +437,9 @@ proveedor configurado es `meta`.
 
 El jobstore de APScheduler 3 es **síncrono**: necesita la URL sin `+asyncpg` y sin `+aiosqlite`.
 `34-crm.md` dice que `normalizar_url` es la única función del proyecto y siempre devuelve la forma
-async. Y `psycopg2` **no está en `PINES.md`** —verificado: no aparece ni ahí ni en
-`plantillas/infra/requirements.txt`—. O sea que en el camino recomendado, Railway con Postgres, el
-recordatorio de 24 horas no existe hoy, y ningún archivo lo dice.
+async. `psycopg2-binary` **está fijado en `PINES.md` y en `plantillas/infra/requirements.txt`**
+desde el 2026-08-17. O sea que en el camino recomendado, Railway con Postgres, el recordatorio de
+24 horas anda.
 
 **La decisión: no se fija un driver síncrono, y se declara detenido.** Escribir un pin que nadie
 verificó contra PyPI rompe el invariante 6 y la regla de las 72 horas de `PINES.md`.

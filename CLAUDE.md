@@ -11,9 +11,9 @@ fase.
 ```
 1 · Recibí el mensaje y traé el contexto
 2 · Detectá la intención y calificá
-3 · Respondé con el tono de marca y ofrecé horarios   ← le escribe a una persona
-4 · Agendá y confirmá                                  ← escribe en la agenda
-5 · Escribí en el CRM                                  ← escribe en la base
+3 · Respondé con el tono de marca y ofrecé horarios (le escribe a una persona)
+4 · Agendá y confirmá (escribe en la agenda)
+5 · Escribí en el CRM (escribe en la base)
 6 · Pasá el chat a un humano cuando corresponde
 ```
 
@@ -42,12 +42,12 @@ Nada queda listo sin `scripts/auditar.py` en verde.
 ## Los comandos
 
 ```
-/start           de cero a andando    /probar     simulador de chat
-/armar-cerrador  construye            /revisar    corre la compuerta
-/seguir          retoma a medias      /bandeja    aprobar borradores
-/playbook        estrategia de cierre /soltar     pasar a automático
-/conectar        credenciales         /publicar   desplegar
-/configurar      catálogo, rango, disponibilidad, escalación, canal
+/start de cero a andando · /probar simulador de chat
+/armar-cerrador construye · /revisar corre la compuerta
+/seguir retoma a medias · /bandeja aprobar borradores
+/playbook estrategia de cierre · /soltar pasar a automático
+/conectar credenciales · /publicar despliega
+/configurar catálogo, rango, disponibilidad, escalación, canal
 ```
 
 Viven en `.claude/skills/`, cada uno apunta a su `blueprint/`.
@@ -60,18 +60,7 @@ hacer, decilo con el motivo en vez de rodearlo.
 El agente le habla a los clientes con el tratamiento elegido en la entrevista — `tú`, `vos` o
 `usted` — que no tiene por qué ser el tuyo.
 
+## Marca
 
-## Identidad y marca
-
-La identidad de producto y comunicación de este repositorio es **Cosas Agénticas**
-(https://cosasagenticas.com). El producto se llama **WhatsApp AgentKit**.
-
-No reintroducir branding, enlaces comerciales, CTAs ni referencias promocionales del proyecto
-upstream.
-
-Mantener todas las atribuciones legalmente exigidas por licencias de terceros —como el aviso
-de copyright MIT en `LICENSE`— en sus ubicaciones correspondientes. No eliminarlas ni
-falsificarlas.
-
-Cuando falte un dato real (URL del repositorio, organización de GitHub, sitio de docs), usar el
-no lo inventes: usá un placeholder inequívoco.
+Cosas Agénticas (cosasagenticas.com). No reintroducir branding ni promoción upstream.
+Conservar atribuciones legales (LICENSE).

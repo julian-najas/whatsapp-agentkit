@@ -6,7 +6,7 @@ las compara contra los registros vivos.
 
 Un número repetido en dos archivos algún día dice dos cosas distintas.
 
-**Verificado contra PyPI el 2026-08-14.**
+**Verificado contra PyPI el 2026-08-17.**
 
 ---
 
@@ -34,24 +34,10 @@ error no nombra a ninguno de los dos. Por eso `starlette` está fijado a `1.3.1`
 2026-08-13 a las 18:36 UTC; el kit fija `0.121.0`, del 2026-08-07. Cuando 0.122.0 cumpla tres
 días y alguien la corra, se sube acá y se vuelve a correr el bucle.
 
-**Y dos líneas de este archivo rompen esa regla hoy, dicho acá y no escondido.** La corrida de
-`scripts/verificar_pines.py` del 2026-08-14 cierra en `FAIL · 2 errores · 2 avisos`, y los dos
-errores son de acá:
-
-```
-[ERROR] pin/sin_reposo   PINES.md:87   uvicorn==0.52.3 salió hace 28 h: no tuvo reposo
-[ERROR] pin/sin_reposo   PINES.md:200  ruff==0.16.3 salió hace 29 h: no tuvo reposo
-```
-
-Los dos entraron el 2026-08-13, el mismo día que salieron. La última con reposo de cada una es
-`uvicorn==0.52.1`, del 2026-08-01, y `ruff==0.16.2`, del 2026-08-07 —`0.52.2` tampoco sirve, es de
-hace 38 horas—. No se bajaron en esta ronda porque bajar el servidor y el linter es un cambio de
-runtime con su propia corrida de la suite, y esta ronda vino a destrabar la rama `service_account`;
-queda escrito acá para que la próxima corrida del bucle no lo descubra de nuevo. Los dos pines que
-sí entraron hoy, `PyJWT` y `cryptography`, tienen 85 y 14 días de reposo.
-
-Los números de línea son de esa corrida y envejecen a la primera edición; lo que manda es el
-nombre del paquete.
+**El `FAIL` de la corrida del 2026-08-14 ya no aplica.** Aquella corrida cerró en
+`FAIL · 2 errores` por `uvicorn==0.52.3` y `ruff==0.16.3`, que habían salido el 2026-08-13 sin
+reposo. Los dos cumplieron las 72 horas y la corrida del 2026-08-17 cierra en
+`PASS · 0 errores · 3 avisos` (los avisos son pines movidos, no errores).
 
 ---
 
@@ -104,6 +90,7 @@ PyYAML==6.0.3
 SQLAlchemy==2.0.52
 asyncpg==0.31.0           # ← el que faltaba. Ver abajo.
 aiosqlite==0.22.1
+psycopg2-binary==2.9.12   # el driver síncrono del jobstore con Postgres. Ver abajo.
 greenlet==3.5.5           # SQLAlchemy lo declara bajo un marcador de plataforma;
                           #   en una arquitectura no listada, el async muere en runtime
 alembic==1.19.1

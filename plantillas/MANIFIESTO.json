@@ -39,8 +39,8 @@
     },
     {
       "ruta": "plantillas/infra/requirements.txt",
-      "sha256": "ef5b506696bfb146005d252e44dddc898364de21c5f19bbe4254ea3861477836",
-      "bytes": 2274,
+      "sha256": "3db7623ca64d2db1c01d6beb7098623857855a812d3ca412762d172d52e79e3c",
+      "bytes": 2360,
       "destino": "requirements.txt",
       "placeholders": []
     },

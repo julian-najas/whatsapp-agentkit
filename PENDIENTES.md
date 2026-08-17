@@ -60,10 +60,10 @@ Nadie se entera hasta que alguien no aparece a una reunión.
 
 ### 4 · El calendario compartido con la cuenta de servicio
 
-**Sólo si vas por `service_account`, que hoy está detenido.** El camino que llega hasta el final es
-`authorized_user`, y ese no comparte nada: el calendario ya es tuyo. Ver la tabla del paso 2 de
-`blueprint/33-agenda.md`, donde `service_account` está frenado porque el token pide un JWT firmado
-con RS256 y ninguna librería que lo haga está en `PINES.md`.
+**Sólo si vas por `service_account`.** El camino que llega hasta el final es `authorized_user`,
+y ese no comparte nada: el calendario ya es tuyo. La rama `service_account` anda desde esta
+ronda: `PINES.md` fija `PyJWT` y `cryptography` para firmar el JWT RS256 (ver `blueprint/33-agenda.md`
+Paso 2).
 
 Si algún día se destraba: crear la cuenta y bajar el JSON no alcanza: hay que compartir el
 calendario con el correo de esa cuenta, a mano, desde la interfaz de Google.

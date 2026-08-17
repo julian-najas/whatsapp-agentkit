@@ -8,7 +8,7 @@ La identidad de producto y comunicación de este repositorio es **Cosas Agéntic
 (https://cosasagenticas.com). El producto se llama **WhatsApp AgentKit**.
 
 No introducir branding, enlaces comerciales, CTAs ni referencias promocionales de proyectos
-upstream (TodoDeIA, Enrique Rocha, Hainrixz ni ningún otro).
+upstream.
 
 Las atribuciones legalmente exigidas por licencias de terceros —como el aviso de copyright
 MIT en `LICENSE`— deben conservarse en sus ubicaciones correspondientes. No las elimines ni

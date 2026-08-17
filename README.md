@@ -279,11 +279,10 @@ tiempo.
 Están enteros en [`PENDIENTES.md`](PENDIENTES.md) y en [`SUPUESTOS.md`](SUPUESTOS.md). Los que
 conviene saber antes de clonar:
 
-**El recordatorio de 24 horas no existe con Postgres.** Con SQLite anda entero. El jobstore de
-APScheduler es síncrono y pide la URL sin `+asyncpg`, y ese driver síncrono no está fijado en
-`PINES.md`. La cita y la confirmación salen igual, y el motivo se dice al agendar, no la noche
-anterior a la reunión. `PENDIENTES.md` § 8 lo cuenta entero, y los tres archivos que hay que
-mover juntos están en `blueprint/00-contrato.md` § 8.
+**El recordatorio de 24 horas anda con SQLite y con Postgres.** El jobstore de APScheduler es
+síncrono y pide la URL sin `+asyncpg`; el driver síncrono que esa URL necesita,
+`psycopg2-binary`, está fijado en `PINES.md` y en `plantillas/infra/requirements.txt`. En el
+camino recomendado, Railway con Postgres, el recordatorio funciona.
 
 **La compuerta en verde no quiere decir que esto ande contra Meta.** Quiere decir que el kit
 está bien armado. Que tu App Secret esté bien copiado, que tu token sea el permanente y no el

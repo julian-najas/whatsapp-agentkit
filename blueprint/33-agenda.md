@@ -807,12 +807,8 @@ otros lados y ninguna es mía:
   Sin eso, aprobar el borrador del paso 4 desde la bandeja no agenda nada.
 - **`blueprint/34-crm.md`**: con el paso 4 andando, la etapa `agendado` de la fila deja de ser
   inalcanzable.
-- **`README.md`** todavía anuncia la detención de `service_account` como una limitación del kit,
-  en el bloque que arranca «El camino `service_account` de Google Calendar está detenido». Ya no lo
-  está. Es lo primero que lee quien evalúa si instalar esto.
-- **`PENDIENTES.md` → 4** dice «sólo si vas por `service_account`, que hoy está detenido». El
-  pendiente sigue siendo cierto y su motivo cambió: compartir el calendario no espera ninguna
-  librería, se hace y listo.
+- **`README.md`** y **`PENDIENTES.md` → 4** ya no anuncian la detención de `service_account`:
+  quedaron corregidos el 2026-08-17. La rama `service_account` anda.
 - **`pruebas/test_camino_feliz.py`**: la constante `SERVICIO_DE_PRUEBAS` trae un `private_key` que
   no firma nada a propósito, y
   `test_cita_con_cuenta_de_servicio_y_sin_la_libreria_de_rs256_queda_detenido` afirma la detención.
