@@ -16,6 +16,19 @@ on:
     branches: [main]
   pull_request:
   workflow_dispatch:
+  # Cada madrugada, sin que nadie toque un archivo.
+  #
+  # Lo que la compuerta afirma se vence solo. El chequeo 10 valida que ningún
+  # literal `claude-*` esté retirado, y un modelo se retira sin que este repo
+  # cambie. Lo mismo con los 62 pines: una versión se puede retirar de PyPI, y
+  # con `python:3.12-slim` pasa igual. Corriendo sólo en `push`, el que clona
+  # dentro de tres meses se lleva un árbol roto mientras la insignia sigue
+  # enseñando el verde del último empujón.
+  #
+  # 04:17 UTC y no en punto: GitHub encola los cron de la hora exacta y los
+  # atrasa. El minuto raro es a propósito.
+  schedule:
+    - cron: "17 4 * * *"
 
 permissions:
   contents: read
@@ -28,7 +41,7 @@ jobs:
 
     steps:
       - name: Clonar
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       # Los chequeos 08 `secretos` y 09 `gitignore-anclado` corren `git ls-files` y
       # `git check-ignore` sobre el árbol. Sin repo de git los dos saltean, y un
@@ -51,7 +64,7 @@ jobs:
           echo "PINES.md fija la imagen python:${version}-slim, así que acá corre ${version}."
 
       - name: Instalar Python
-        uses: actions/setup-python@v7
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
         with:
           python-version: ${{ steps.python.outputs.version }}
 
@@ -86,9 +99,83 @@ jobs:
       # versiona, pero sí sirve para leer qué pasó cuando esto sale rojo.
       - name: Guardar la evidencia
         if: always()
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: evidencia-${{ github.sha }}
           path: EVIDENCIA/
           if-no-files-found: warn
           retention-days: 14
+
+  # ───────────────────────────────────────────────────────────────────────────
+  # El aviso. Sólo cuando la corrida nocturna se rompe sola.
+  #
+  # Va en un trabajo aparte y no como un paso más del de arriba, por lo mismo
+  # que el trabajo de arriba se queda en `contents: read`: ese instala paquetes
+  # de PyPI, o sea corre código de terceros. Darle `issues: write` sería darle
+  # permiso de escritura en el repo a lo que se acaba de bajar. Éste no instala
+  # nada y por eso puede escribir.
+  #
+  # Un `push` roto ya lo ve quien empujó; no hace falta incidencia. La nocturna
+  # no la mira nadie, y ésa es justamente la que hay que gritar.
+  # ───────────────────────────────────────────────────────────────────────────
+  avisar:
+    name: Abrir incidencia si la nocturna se rompió
+    needs: compuerta
+    if: failure() && github.event_name == 'schedule'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      issues: write
+
+    steps:
+      # Sin `checkout`: no hace falta el árbol para escribir una incidencia, y
+      # menos superficie es menos superficie.
+      - name: Una incidencia, no una por noche
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          CORRIDA: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          set -euo pipefail
+
+          # `gh` viene en el runner: no se agrega una acción de terceros para esto.
+          abiertas=$(gh issue list --repo "$REPO" --label compuerta-nocturna \
+                       --state open --json number --jq 'length')
+
+          if [ "$abiertas" != "0" ]; then
+            echo "Ya hay una incidencia abierta por esto. No abro otra."
+            echo "Corrida: $CORRIDA"
+            exit 0
+          fi
+
+          gh label create compuerta-nocturna \
+            --repo "$REPO" \
+            --color B60205 \
+            --description "La compuerta se rompió sola, sin que nadie tocara el repo" \
+            2>/dev/null || true
+
+          gh issue create --repo "$REPO" \
+            --label compuerta-nocturna \
+            --title "La compuerta se rompió sola el $(date -u +%Y-%m-%d)" \
+            --body "$(cat <<CUERPO
+          Nadie tocó el repositorio y la compuerta pasó de verde a roja. Eso quiere
+          decir que se movió algo de afuera, no acá adentro.
+
+          **Corrida:** $CORRIDA
+          La evidencia queda como artefacto de esa corrida, 14 días.
+
+          Lo que se vence solo, por orden de probabilidad:
+
+          - **Un modelo retirado.** Chequeo 10. \`PINES.md\` fija \`MODELO\`, y
+            los literales \`claude-*\` se retiran sin avisar a este repo.
+          - **Una versión que ya no está en PyPI.** Los 62 pines de
+            \`plantillas/infra/requirements.txt\`.
+          - **La imagen base.** \`python:3.12-slim\`, de donde sale la versión
+            que corre la CI.
+
+          Antes de cerrar: arreglarlo, correr \`python scripts/auditar.py\` en
+          verde, y anotar en \`PENDIENTES.md\` qué se movió y cuándo.
+          CUERPO
+          )"
+
+          echo "Incidencia abierta."
