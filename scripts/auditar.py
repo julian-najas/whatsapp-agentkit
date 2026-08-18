@@ -2882,6 +2882,121 @@ def _variable_en_el_prefijo(fn: ast.FunctionDef | ast.AsyncFunctionDef):
 
 
 # ─────────────────────────────────────────────────────────────────────────────
+# 24 · cache-cobrado
+# ─────────────────────────────────────────────────────────────────────────────
+
+
+def chequeo_cache_cobrado(c: Contexto, r: Reporte) -> None:
+    """`cache-estatico` garantiza que el prefijo se puede cachear. Éste, que se cachea.
+
+    Son dos cosas distintas y durante siete rondas sólo se miró la primera: el prefijo era
+    estático, perfecto, y la llamada lo mandaba sin `cache_control`. O sea que el trabajo de
+    mantenerlo idéntico byte por byte no cobraba nada, y no había forma de notarlo: la
+    respuesta es correcta, no hay error, sólo se paga el prefijo entero en cada mensaje.
+
+    Se mira la llamada que crea el mensaje y el cuerpo del sistema que le pasa. Si el
+    `cache_control` no está, es error. Si está, se mide el prefijo y se avisa cuando no
+    llega al mínimo cacheable del modelo, porque por debajo de ahí la API no cachea y
+    tampoco avisa.
+    """
+    if not c.hay_agente:
+        r.saltear("no existe agente/: esto corre después de /armar-cerrador")
+        return
+
+    con_cache, revisadas = [], 0
+    for modulo in c.modulos():
+        arbol, _ = _arbol(modulo)
+        if arbol is None:
+            continue
+        rel = c.rel(modulo)
+        for nodo in ast.walk(arbol):
+            if not (isinstance(nodo, ast.Call) and isinstance(nodo.func, ast.Attribute)):
+                continue
+            if nodo.func.attr != "create":
+                continue
+            if "messages" not in _fuente(nodo.func):
+                continue
+            revisadas += 1
+            fn = _funcion_que_contiene(arbol, nodo)
+            if _tiene_cache_control(fn if fn is not None else arbol):
+                con_cache.append(rel)
+            else:
+                r.error("cache/sin_cobrar",
+                        "la llamada al modelo manda el prefijo del sistema sin "
+                        "`cache_control`. El prefijo es estático —eso ya lo garantiza "
+                        "`cache-estatico`— y sin esta clave se vuelve a cobrar entero en cada "
+                        "mensaje. Ver blueprint/30-generacion.md § Paso 5",
+                        rel, nodo.lineno, "build")
+
+    if revisadas == 0:
+        r.saltear("no encontré ninguna llamada `messages.create` en agente/")
+        return
+
+    r.decir(f"{revisadas} llamada(s) al modelo, {len(con_cache)} con `cache_control`")
+
+    # El prefijo real de ESTE árbol, medido y no estimado. Se dice en caracteres porque
+    # contar tokens exige salir a la red, y esta compuerta no sale.
+    prefijo = _medir_prefijo(c)
+    if prefijo is None:
+        return
+    r.decir(f"prefijo estático: {prefijo} caracteres")
+    if prefijo < MINIMO_CACHEABLE_CARACTERES:
+        r.aviso("cache/prefijo_corto",
+                f"el prefijo mide {prefijo} caracteres y es improbable que llegue a los 512 "
+                f"tokens que Opus 5 exige para cachear. Por debajo de ese mínimo la API no "
+                f"cachea y NO avisa: `cache_creation_input_tokens` viene en cero y no hay "
+                f"error. No es un defecto del kit —es que este catálogo y este playbook "
+                f"todavía son cortos—, pero el ahorro no está ocurriendo. Aviso y no error "
+                f"por eso mismo",
+                "config/", 0, "config")
+
+
+# 512 tokens es el mínimo cacheable de Opus 5. En caracteres no hay equivalencia exacta y
+# depende del idioma, así que el umbral va holgado a propósito: por debajo de esto no llega
+# ni con la tokenización más favorable, y por encima se calla y deja medir al que cobre.
+MINIMO_CACHEABLE_CARACTERES = 1800
+
+
+def _funcion_que_contiene(arbol, objetivo):
+    """La función donde vive `objetivo`, para no buscar el `cache_control` en todo el módulo."""
+    for nodo in ast.walk(arbol):
+        if isinstance(nodo, (ast.FunctionDef, ast.AsyncFunctionDef)):
+            for hijo in ast.walk(nodo):
+                if hijo is objetivo:
+                    return nodo
+    return None
+
+
+def _tiene_cache_control(ambito) -> bool:
+    for nodo in ast.walk(ambito):
+        if isinstance(nodo, ast.Dict):
+            for clave in nodo.keys:
+                if isinstance(clave, ast.Constant) and clave.value == "cache_control":
+                    return True
+    return False
+
+
+def _medir_prefijo(c: Contexto):
+    """Corre el constructor del prompt en subproceso y devuelve su largo en caracteres.
+
+    En subproceso y no importando acá, igual que `wire-schema` y `contrato`: un import del
+    árbol auditado adentro de la compuerta se lleva puesto el proceso si ese árbol está roto.
+    """
+    guion = (
+        "import sys; sys.path.insert(0, '.')\n"
+        "from agente.prompt import prompt_de_sistema\n"
+        "print(len(prompt_de_sistema()))\n"
+    )
+    codigo, salida = _correr([c.interprete, "-c", guion], cwd=c.raiz)
+    if codigo != 0:
+        return None
+    try:
+        return int(salida.strip().splitlines()[-1])
+    except (ValueError, IndexError):
+        return None
+
+
+# ─────────────────────────────────────────────────────────────────────────────
 # 16 y 17 · contrato y contrato-control
 # ─────────────────────────────────────────────────────────────────────────────
 
@@ -5380,6 +5495,7 @@ REGISTRO = [
     ("agente-completo", "cada módulo que promete la tabla de 30-generacion.md",
      chequeo_agente_completo),
     ("cache-estatico", "nada variable en el prefijo del prompt", chequeo_cache_estatico),
+    ("cache-cobrado", "el prefijo estático se manda con cache_control", chequeo_cache_cobrado),
     ("contrato", "las salidas validan y los pasos vienen 1..6", chequeo_contrato),
     ("contrato-control", "cinco mutaciones que tienen que rebotar", chequeo_contrato_control),
     ("firmas", "los fixtures crudos, con el espaciado intacto", chequeo_firmas),
@@ -5449,6 +5565,7 @@ SIEMPRE_EXIGIBLES = frozenset({"contrato-control", "blueprint-existe", "firmas"}
 # comando exacto. `parcial` y no `fail` a propósito: no hay ningún hallazgo, hay algo sin mirar.
 EXIGIBLES_CON_AGENTE = frozenset({
     "deps-imports", "deps-drivers", "modelo", "http-unico", "enviar-unico", "cache-estatico",
+    "cache-cobrado",
     "agente-completo", "pruebas", "wire-schema", "contrato", "playbook", "panel-cerrado",
     "rutas-del-contrato", "censo-de-campos",
 })

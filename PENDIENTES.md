@@ -492,6 +492,58 @@ que es de otro dueño.
 
 ---
 
+## El caché de prompt · cerrado el 2026-08-18
+
+Durante siete rondas el kit hizo la mitad difícil y no cobró la fácil. `cache-estatico`
+garantizaba desde el principio que el prefijo del sistema fuera idéntico byte por byte —sin
+reloj, sin `uuid`, sin valores de la petición—, que es el trabajo de verdad. Y después
+`agente/modelo.py` lo mandaba así:
+
+```python
+cuerpo_sistema = [{"type": "text", "text": sistema or ""}]
+```
+
+Sin `cache_control`. O sea: el prefijo se volvía a cobrar entero en cada mensaje, y **no había
+forma de notarlo**. La respuesta es correcta, la compuerta verde, la suite en verde. Sólo sube
+la factura, y en un cerrador el mismo catálogo y el mismo playbook se leen en cada turno de cada
+conversación.
+
+Lo que más pesa: `blueprint/50-despliegue.md` ya prometía por escrito *«con caché de prompt cae a
+la mitad»*. El documento lo prometía y el código no lo hacía.
+
+**Qué se hizo.** La clave en el bloque del sistema, dictada en `blueprint/30-generacion.md`
+§ Paso 5; el chequeo **24 `cache-cobrado`**, que es error si la llamada va sin ella; y
+`pruebas/test_cache_cobrado.py`, cuatro nodos que leen el árbol sin salir a la red.
+
+**Comprobado que se pueden poner rojos**, que es la única prueba que vale:
+
+| Mutación en `agente/modelo.py` | Qué dio la suite |
+|---|---|
+| `cache_control` quitado entero | 2 failed, 2 passed |
+| `{"type": "efimero"}` en vez de `ephemeral` | 1 failed, 3 passed |
+
+### Lo que esta clave NO hace, y hay que decirlo
+
+Por debajo del mínimo cacheable del modelo —**512 tokens en Opus 5**— la API no cachea y **no
+avisa**: `cache_creation_input_tokens` viene en cero, sin error. Con el catálogo y el playbook de
+la configuración de demostración el prefijo mide **882 caracteres** y no llega, así que ahí la
+clave está de adorno.
+
+No es un defecto del kit: es que ese negocio todavía no tiene prefijo suficiente. Por eso el
+chequeo 24 mide el prefijo del árbol y lo dice en voz alta, como **aviso y no como error**. El
+día que el playbook tenga sus ocho objeciones escritas y el catálogo sus productos de verdad, el
+aviso se apaga solo y el ahorro empieza sin tocar una línea.
+
+### Lo que queda abierto
+
+**Nadie ha medido el ahorro de punta a punta.** Para eso hace falta una clave de la API de
+Anthropic y dos llamadas idénticas seguidas mirando `cache_read_input_tokens`, y la compuerta
+corre sin red y sin credenciales a propósito. Lo comprueba quien despliegue, una vez, con el
+prefijo de su negocio ya escrito. Si tu primera lectura de caché da cero con un prefijo largo,
+ahí sí hay algo que mirar.
+
+---
+
 ## Cómo se anota lo que vas cerrando
 
 Debajo de cada punto, una línea con la fecha y qué te dio. Un pendiente cerrado sin nota vuelve
