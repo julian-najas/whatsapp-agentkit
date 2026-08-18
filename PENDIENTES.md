@@ -590,6 +590,55 @@ ahí sí hay algo que mirar.
 
 ---
 
+## El kit tenía fecha de caducidad y no lo sabía · cerrado el 2026-08-18
+
+`blueprint/05-arranque.md` y `blueprint/50-despliegue.md` decían **«hoy ese mensaje no se
+cobra»** sobre el precio de WhatsApp. El 1 de octubre de 2026 Meta pasa a cobrar por mensaje
+de negocio, incluidas las respuestas de servicio y las utility adentro de la ventana.
+
+O sea: esa frase **se vuelve falsa sola**. Sin que nadie toque un archivo, sin que falle una
+prueba, sin que la compuerta se entere. Y el kit se la sigue contando al comprador con la
+misma seguridad con la que cuenta lo que sí es cierto.
+
+Es la peor clase de error que puede tener algo que se vende hecho: no hay fallo, hay
+confianza. El comprador cotiza con un precio viejo creyendo que es el de hoy.
+
+### Qué se hizo
+
+**La prosa, en dos regímenes con fecha.** Ni «hoy» ni «esto cambia»: *hasta el 30 de
+septiembre de 2026* una cosa, *desde el 1 de octubre de 2026* la otra. Así el texto es cierto
+a los dos lados del corte y no hay que editarlo ese día — que es justo lo que no iba a pasar.
+
+**Chequeo 25 `fechas-que-caducan`.** La lista de afirmaciones con fecha vive en `auditar.py`,
+no en la prosa, por lo mismo que `ARCHIVOS_DE_PRUEBA`: una vara que escribe el auditado no es
+una vara. El chequeo hace tres cosas:
+
+- error si alguien **borra** la advertencia (el comprador se queda sin saber que hay corte),
+- error si la fecha **ya pasó** y el párrafo sigue hablando en futuro,
+- aviso desde 45 días antes, para que no llegue el día y nadie se acuerde.
+
+Hoy avisa: faltan 44 días.
+
+### Comprobado que se puede poner rojo
+
+| Mutación | Qué dio la suite |
+|---|---|
+| la prosa real vuelve a decir «esto cambia el 1 de octubre» | 1 failed, 7 passed |
+| el chequeo deja de mirar si el párrafo habla en futuro | 1 failed, 7 passed |
+
+La prueba que cierra el encargo es
+`test_los_blueprints_de_verdad_siguen_diciendo_la_verdad_el_2_de_octubre`: no es una maqueta,
+son los archivos que se le entregan al comprador, leídos parados en el día después del corte.
+
+### Lo que queda abierto
+
+**Los números de las dos tarifas no los ha verificado nadie contra la página de Meta.** Están
+copiados de la documentación en el momento en que se escribió el kit. La fecha del corte sí
+está comprobada; los centavos por país, no. Quien despliegue mira la página de precios antes
+de prometerle un número a un cliente, y el texto ahora se lo dice con esas palabras.
+
+---
+
 ## Cómo se anota lo que vas cerrando
 
 Debajo de cada punto, una línea con la fecha y qué te dio. Un pendiente cerrado sin nota vuelve

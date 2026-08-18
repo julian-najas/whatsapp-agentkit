@@ -113,7 +113,7 @@ import subprocess
 import sys
 import tempfile
 from dataclasses import asdict, dataclass, field
-from datetime import datetime, timezone
+from datetime import date, datetime, timezone
 from pathlib import Path
 
 # Nada de este script tiene por qué dejar __pycache__ en el árbol de quien clona.
@@ -3695,6 +3695,7 @@ ARCHIVOS_DE_PRUEBA = (
     "test_censo_lee_sus_rojos.py",
     "test_contrato.py",
     "test_enviar.py",
+    "test_fechas_que_caducan.py",
     "test_firmas.py",
     "test_idempotencia.py",
     "test_modelo.py",
@@ -5525,6 +5526,78 @@ def correr_censo(c: Contexto, *, solo: str = "") -> dict:
 
 
 # ─────────────────────────────────────────────────────────────────────────────
+# 25 · fechas que caducan
+# ─────────────────────────────────────────────────────────────────────────────
+
+# Las afirmaciones del kit que tienen fecha de vencimiento, y el archivo donde viven.
+#
+# Sale de un agujero real: el kit decía «hoy ese mensaje no se cobra» sobre el precio de
+# WhatsApp. El 1 de octubre de 2026 esa frase se vuelve falsa sola, sin que nadie toque un
+# archivo, y el kit se la sigue contando al comprador con la misma seguridad de siempre. Un
+# documento fechado que se cree actual es peor que uno sin fecha: el segundo te hace dudar.
+#
+# La lista vive acá y no en la prosa por lo mismo que `ARCHIVOS_DE_PRUEBA`: una vara que
+# escribe el auditado no es una vara.
+#
+# `(fecha ISO, cómo se escribe en el texto, archivo, de qué habla)`.
+AFIRMACIONES_CON_FECHA = (
+    ("2026-10-01", "1 de octubre de 2026", "blueprint/05-arranque.md",
+     "el precio de WhatsApp por mensaje de negocio"),
+    ("2026-10-01", "1 de octubre de 2026", "blueprint/50-despliegue.md",
+     "el precio de WhatsApp por mensaje de negocio"),
+)
+
+# Lo que delata a un párrafo que sigue esperando algo que ya ocurrió.
+HABLA_EN_FUTURO = ("esto cambia", "pasa a cobrar", "va a cambiar", "cambiará", "cambia el")
+
+# Con cuánta anticipación enterarse, para que no llegue el día y nadie se acuerde.
+AVISO_DIAS_ANTES = 45
+
+
+def _parrafos_con(texto: str, literal: str) -> list[str]:
+    """Los párrafos que nombran el literal. Párrafo es lo que va entre dos líneas en blanco."""
+    return [p for p in re.split(r"\n\s*\n", texto) if literal in p]
+
+
+def chequeo_fechas_que_caducan(c: Contexto, r: Reporte) -> None:
+    hoy = date.today()
+    vistas = 0
+    for iso, literal, rel, asunto in AFIRMACIONES_CON_FECHA:
+        archivo = c.raiz / rel
+        corte = date.fromisoformat(iso)
+        if not archivo.is_file():
+            r.error("fechas/archivo_ausente",
+                    f"{rel} no está, y ahí vivía una afirmación con fecha sobre {asunto}",
+                    rel, 0, "kit")
+            continue
+        parrafos = _parrafos_con(archivo.read_text(encoding="utf-8", errors="replace"), literal)
+        if not parrafos:
+            r.error("fechas/aviso_borrado",
+                    f"{rel} ya no nombra el «{literal}», y ese día cambia {asunto}. Si la "
+                    f"advertencia se borró, el comprador lee un precio viejo creyendo que es "
+                    f"el de hoy", rel, 0, "kit")
+            continue
+        vistas += 1
+        if hoy >= corte:
+            culpables = sorted({f for p in parrafos for f in HABLA_EN_FUTURO if f in p})
+            if culpables:
+                r.error("fechas/futuro_vencido",
+                        f"el {literal} ya pasó y {rel} sigue hablando de eso en futuro: dice "
+                        f"{', '.join('«' + f + '»' for f in culpables)}. Hoy {asunto} ya es "
+                        f"otro, así que el texto afirma algo falso con total seguridad. "
+                        f"Reescribí el párrafo en pasado o sacá el régimen viejo",
+                        rel, 0, "kit")
+            continue
+        faltan = (corte - hoy).days
+        if faltan <= AVISO_DIAS_ANTES:
+            r.aviso("fechas/se_acerca",
+                    f"faltan {faltan} día(s) para el {literal}, y ese día cambia {asunto}. "
+                    f"Revisá {rel} antes: el día después este chequeo se pone rojo",
+                    rel, 0, "kit")
+    r.decir(f"{vistas} afirmación(es) con fecha, ninguna vencida sin reescribir")
+
+
+# ─────────────────────────────────────────────────────────────────────────────
 # Orquestación
 # ─────────────────────────────────────────────────────────────────────────────
 
@@ -5564,6 +5637,8 @@ REGISTRO = [
     # suite afirma sobre él, y el único que se apoya en una corrida que se pide aparte.
     ("censo-de-campos", "cada campo del contrato de salida, afirmado o escrito",
      chequeo_censo_campos),
+    ("fechas-que-caducan", "ninguna afirmación con fecha habla en futuro de algo ya pasado",
+     chequeo_fechas_que_caducan),
 ]
 
 
