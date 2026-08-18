@@ -15,49 +15,46 @@ Este kit construye el agente que atiende esos chats: califica, contesta la objec
 playbook, ofrece horarios que existen de verdad, agenda, y deja la etapa y el próximo paso
 escritos en el CRM.
 
-## Esto no es una aplicación
+## Mirálo trabajar antes de leer nada
 
-**Adentro no hay código que corras.** No hay `agente/`, no hay servidor, no hay `pip install`
-que te deje algo andando. Comprobalo:
+Sin instalar, sin clave de API, sin registrarte. Diez segundos:
 
 ```console
-$ ls agente
-ls: agente: No such file or directory
+$ python3 pruebas/simulador.py
+cerrador · demo · modo borrador · base en memoria · modelo stub, sin ANTHROPIC_API_KEY
+
+vos> Si me hacés 30 % lo tomo hoy mismo
+
+agente (escalado · NO enviado)
+  Te sigue una persona del equipo. Ya le pasé la conversación.
+
+  ── por qué ───────────────────────────────────────────────────
+  score 62 · tibio       Preguntó precio y puso una objeción que está en el playbook.
+  objeción «Está caro»   en el playbook · respondida con su línea
+  horarios 0 de 4        de disponibilidad · ninguno inventado
+  precio 12000 MXN       del catálogo · dentro del rango 8000–40000
+  handoff precio_fuera_de_rango    disparador «30»
+  envíos de este turno   0
+  ──────────────────────────────────────────────────────────────
+  enter aprueba y manda · n descarta
 ```
 
-Lo que se envía son instrucciones, contratos, pruebas y una compuerta. Se clona, se abre Claude
-Code adentro de la carpeta, y se corre `/start`. Claude lee el blueprint fase por fase y
-**escribe el código en tu máquina**, contra tus versiones y tu sistema operativo.
+Le pidieron un 30 % de descuento y **no lo dio**: lo pasó a una persona. No inventó un horario,
+no inventó un precio, contestó la objeción con la línea del playbook, y no mandó nada sin que
+alguien le diera al enter.
 
-La razón es de ingeniería y no de estilo: un `pip install` a veces no anda, y no anda distinto
-en cada computadora. Un blueprint que dice qué hacer, qué tenés que ver en pantalla, y qué
-hacer cuando eso no aparece, sobrevive a esa diferencia. Un tarball de código, no.
+Eso es lo que hace, y eso es lo que te llevás:
 
-```bash
-git clone https://github.com/julian-najas/whatsapp-agentkit
-cd whatsapp-agentkit
-claude          # y adentro:  /start
-```
-
-**Se clona, no se instala con `/plugin install`.** `.claude-plugin/plugin.json` existe para que
-el marketplace pueda listarlo, y declara cero componentes a propósito: los once comandos leen
-`blueprint/`, `scripts/` y `pruebas/` con `${CLAUDE_PROJECT_DIR}`, y eso son los archivos del
-clon. Instalado como plugin, esas rutas apuntan al proyecto de otro.
-
-Lo que se necesita antes: Python en el rango de `PINES.md` (`>=3.11,<3.15`) y una clave de la
-API de Anthropic. Lo demás lo pide el blueprint cuando le toca.
-
-### Qué hay en la caja
-
-| Carpeta | Qué es |
+| lo que no puede hacer | lo que ganás vos |
 |---|---|
-| `blueprint/` | dieciséis archivos, uno por fase. Cada paso trae Objetivo, Hacé esto, Tenés que ver, Si falla |
-| `contratos/` | entrada y salida en JSON Schema. `additionalProperties: false` en los dos niveles |
-| `pruebas/` | la suite y los fixtures crudos, incluidas dos entregas grabadas con su firma |
-| `plantillas/` | los archivos que se copian verbatim, cada uno con su sha256 en `MANIFIESTO.json` |
-| `.claude/skills/` | los once comandos |
-| `scripts/auditar.py` | la compuerta: veintitrés chequeos, sin red y sin credenciales |
-| `PINES.md` | las 30 dependencias, el modelo y la imagen. Ningún número vive en dos lados |
+| Regalar un descuento por su cuenta | No amanecés con tu margen regalado |
+| Inventarse un horario | La agenda no se llena de reuniones que no existen |
+| Inventarse un precio | Nadie cotiza tu trabajo por vos |
+| Improvisar una objeción | Contesta con tus palabras, no con las de un modelo |
+| Escribirle a un cliente sin tu visto bueno | No habla en tu nombre a tus espaldas |
+| Cerrar un chat sin dejar rastro | Tres días después se sabe en qué quedaron |
+
+Contestás al instante sin que nadie diga una tontería en tu nombre.
 
 ## Los seis pasos
 
@@ -177,6 +174,50 @@ Viven en `.claude/skills/`. Los que construyen abren el archivo de `blueprint/` 
 
 `bandeja resumen` lista **las objeciones que aparecieron y no están en el playbook**. Ése es el
 producto del comando: convierte dos semanas de esperar en dos semanas de construir el playbook.
+
+## Esto no es una aplicación
+
+**Adentro no hay código que corras.** No hay `agente/`, no hay servidor, no hay `pip install`
+que te deje algo andando. Comprobalo:
+
+```console
+$ ls agente
+ls: agente: No such file or directory
+```
+
+Lo que se envía son instrucciones, contratos, pruebas y una compuerta. Se clona, se abre Claude
+Code adentro de la carpeta, y se corre `/start`. Claude lee el blueprint fase por fase y
+**escribe el código en tu máquina**, contra tus versiones y tu sistema operativo.
+
+La razón es de ingeniería y no de estilo: un `pip install` a veces no anda, y no anda distinto
+en cada computadora. Un blueprint que dice qué hacer, qué tenés que ver en pantalla, y qué
+hacer cuando eso no aparece, sobrevive a esa diferencia. Un tarball de código, no.
+
+```bash
+git clone https://github.com/julian-najas/whatsapp-agentkit
+cd whatsapp-agentkit
+claude          # y adentro:  /start
+```
+
+**Se clona, no se instala con `/plugin install`.** `.claude-plugin/plugin.json` existe para que
+el marketplace pueda listarlo, y declara cero componentes a propósito: los once comandos leen
+`blueprint/`, `scripts/` y `pruebas/` con `${CLAUDE_PROJECT_DIR}`, y eso son los archivos del
+clon. Instalado como plugin, esas rutas apuntan al proyecto de otro.
+
+Lo que se necesita antes: Python en el rango de `PINES.md` (`>=3.11,<3.15`) y una clave de la
+API de Anthropic. Lo demás lo pide el blueprint cuando le toca.
+
+### Qué hay en la caja
+
+| Carpeta | Qué es |
+|---|---|
+| `blueprint/` | dieciséis archivos, uno por fase. Cada paso trae Objetivo, Hacé esto, Tenés que ver, Si falla |
+| `contratos/` | entrada y salida en JSON Schema. `additionalProperties: false` en los dos niveles |
+| `pruebas/` | la suite y los fixtures crudos, incluidas dos entregas grabadas con su firma |
+| `plantillas/` | los archivos que se copian verbatim, cada uno con su sha256 en `MANIFIESTO.json` |
+| `.claude/skills/` | los once comandos |
+| `scripts/auditar.py` | la compuerta: veintitrés chequeos, sin red y sin credenciales |
+| `PINES.md` | las 30 dependencias, el modelo y la imagen. Ningún número vive en dos lados |
 
 ## Cómo se verifica
 
