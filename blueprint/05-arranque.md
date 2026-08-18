@@ -120,13 +120,14 @@ que siguen. Están verificados el **2026-08-13** y su dueño es `blueprint/50-de
   thinking adaptativo viene prendido por default y se factura como salida, y el historial crece en
   cada turno, así que el décimo mensaje cuesta más que el primero. Cuál es el modelo lo fija
   `PINES.md`; el desglose por token está en `blueprint/50-despliegue.md`.
-- **WhatsApp.** Si el cliente escribió primero y contestás dentro de la ventana de 24 horas —el
-  plazo desde el último mensaje del contacto en el que WhatsApp deja contestar texto libre; ver
-  `blueprint/00-contrato.md` § 10—, hoy ese mensaje no se cobra. Las plantillas sí, por mensaje
+- **WhatsApp.** Son dos regímenes y el corte es el **1 de octubre de 2026**. *Hasta el 30 de
+  septiembre de 2026:* si el cliente escribió primero y contestás dentro de la ventana de 24 horas
+  —el plazo desde el último mensaje del contacto en el que WhatsApp deja contestar texto libre; ver
+  `blueprint/00-contrato.md` § 10—, ese mensaje no se cobra; las plantillas sí, por mensaje
   entregado y por país. Un cerrador que solo contesta casi no paga; el recordatorio de 24 horas
-  antes de la cita sí, porque sale fuera de la ventana. **El 1 de octubre de 2026 esto cambia:**
-  Meta pasa a cobrar por mensaje de negocio, incluidas las respuestas de servicio y las utility
-  adentro de la ventana.
+  antes de la cita sí, porque sale fuera de la ventana. *Desde el 1 de octubre de 2026:* Meta cobra
+  por mensaje de negocio, incluidas las respuestas de servicio y las utility adentro de la ventana,
+  y la cuenta del cerrador que solo contesta deja de ser casi cero.
 - **Estos números se mueven.** Decilo así, con esas palabras: mirá las páginas de precios antes de
   prometerle un costo a alguien. Un archivo fechado no es una cotización.
 
@@ -172,8 +173,9 @@ trámite de Meta o no. Este paso no cambia un solo archivo del disco.
   el alta de la app, los permisos y cada credencial con su trampa son del tramo 3 de
   `blueprint/20-entrevista.md`, y no se adelantan.
 - **Quiere números cerrados para cotizarle a un cliente.** No los hay en este archivo y no los voy a
-  inventar: el costo del modelo depende de cuántos chats y de qué largo, y el de WhatsApp cambia el
-  1 de octubre de 2026. Lo que sí se puede hacer es medirlo: la fase 5 corre el simulador y ahí se
+  inventar: el costo del modelo depende de cuántos chats y de qué largo, y el de WhatsApp tiene un
+  corte el 1 de octubre de 2026. Lo que sí se puede hacer es medirlo: la fase 5 corre el simulador
+  y ahí se
   ve el gasto real de una conversación completa.
 
 ---

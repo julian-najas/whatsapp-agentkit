@@ -258,7 +258,7 @@ primer despliegue con Postgres.
 forma async; ver `blueprint/00-contrato.md` § 8.
 
 ```python
-from urllib.parse import parse_qsl, urlencode, urlsplit, urlunsplit
+from urllib.parse import parse_qsl, urlencode, urlsplit
 
 ESQUEMAS = {"postgres": "postgresql+asyncpg", "postgresql": "postgresql+asyncpg",
             "sqlite": "sqlite+aiosqlite"}
@@ -419,6 +419,26 @@ catálogo y playbook, y la llamada con `esquema_wire()`. **Invariante 6: el mode
 y de ningún otro lado** —hoy `claude-opus-5`, leído de `MODELO`. Van `thinking={"type": "adaptive"}`
 y `output_config={"effort": "medium"}`, explícitos; no van `temperature`, `top_p`, `top_k` ni
 `budget_tokens`, que devuelven 400.
+
+**El prefijo va con `cache_control`, y ésa es la única razón por la que se lo mantiene
+estático.** En el cuerpo del sistema:
+
+```python
+cuerpo_sistema = [
+    {"type": "text", "text": sistema or "", "cache_control": {"type": "ephemeral"}}
+]
+```
+
+Sin esa clave el prefijo se vuelve a cobrar entero en cada mensaje que llega, y todo el trabajo
+de mantenerlo idéntico no cobra nada. Una lectura de caché cuesta la décima parte de la entrada
+normal, y un cerrador lee el mismo catálogo y el mismo playbook en cada turno de cada
+conversación.
+
+⚠️ **Lo que la clave no hace.** Por debajo del mínimo cacheable del modelo —512 tokens en Opus
+5— la API no cachea y **no avisa**: `cache_creation_input_tokens` viene en cero, sin error. Con
+un catálogo de tres productos y dos objeciones el prefijo no llega, y la clave queda de adorno.
+No es un fallo del kit: es que ese negocio todavía no tiene prefijo suficiente. El chequeo 24
+`cache-cobrado` mide el prefijo del árbol y lo dice en voz alta, en vez de dejarlo en silencio.
 
 Nada variable en el prefijo estático —la parte del prompt de sistema que no cambia nunca; ver
 `blueprint/00-contrato.md` § 10—: ni `datetime.now()`, ni `uuid`, ni `random`, ni un valor

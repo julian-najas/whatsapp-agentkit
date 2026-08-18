@@ -276,12 +276,15 @@ alguien.
   a 0.50 una conversación de diez idas y vueltas. Con caché de prompt cae a la mitad. Lo que no se
   ve: el thinking adaptativo viene prendido por default y se factura como salida, y el historial
   crece en cada turno, así que el décimo mensaje cuesta más que el primero.
-- **WhatsApp con `meta`.** Hoy, si el cliente escribió primero y contestás dentro de las 24 horas, el
-  mensaje no se cobra. Se cobran las plantillas, por mensaje entregado y por país: del orden de USD
-  0.01 en India a 0.025 en Estados Unidos, marketing arriba y utility más abajo. Un cerrador que solo
-  contesta casi no paga; el recordatorio de 24 horas antes de la cita sí, porque sale fuera de la
-  ventana. **El 1 de octubre de 2026 esto cambia:** Meta pasa a cobrar por mensaje de negocio,
-  incluidas las respuestas de servicio y las utility adentro de la ventana.
+- **WhatsApp con `meta`.** Son dos regímenes distintos y el corte es el **1 de octubre de 2026**.
+  *Hasta el 30 de septiembre de 2026:* si el cliente escribió primero y contestás dentro de las 24
+  horas, ese mensaje no se cobra; se cobran las plantillas, por mensaje entregado y por país, del
+  orden de USD 0.01 en India a 0.025 en Estados Unidos, marketing arriba y utility más abajo. Un
+  cerrador que solo contesta casi no paga; el recordatorio de 24 horas antes de la cita sí, porque
+  sale fuera de la ventana. *Desde el 1 de octubre de 2026:* Meta cobra por mensaje de negocio,
+  incluidas las respuestas de servicio y las utility adentro de la ventana, así que la cuenta de un
+  cerrador que solo contesta deja de ser casi cero. Cuál de los dos te toca lo dice el calendario,
+  no este archivo: mirá la página de precios de Meta antes de prometerle un número a nadie.
 - **WhatsApp con `zernio`.** Cobra por cuenta conectada y no por mensaje: las dos primeras gratis, de
   la tercera a la décima USD 6 por mes cada una. Encima pagás igual las plantillas de Meta.
 

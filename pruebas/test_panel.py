@@ -806,7 +806,7 @@ def _nombres_de_html_escape(arbol: ast.AST) -> set[str]:
     return nombres
 
 
-def test_el_html_se_escapa_con_html_escape_contado_por_ast(monkeypatch) -> None:
+def test_el_html_se_escapa_con_html_escape_contado_por_ast() -> None:
     """Contado como nodo de llamada, por lo mismo que `compare_digest` un archivo más arriba.
 
     `\"html.escape\" in fuente` sigue en verde con el escapado reemplazado por tres `.replace()`

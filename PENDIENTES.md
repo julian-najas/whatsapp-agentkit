@@ -492,6 +492,153 @@ que es de otro dueño.
 
 ---
 
+## El censo no sabía leer sus propios rojos · cerrado el 2026-08-18
+
+`--censo` daba **43 campos `indeterminado`**, o sea «no pude medir ninguno». La evidencia
+guardada decía otra cosa: en el campo `estado`, `mutados: 48` y un `FAILED` adentro del
+detalle. Estaba mutando, la suite se ponía roja como tenía que ponerse, y el veredicto era
+que no había medido nada.
+
+El último paso era el roto. `FALLA_DE_PYTEST` buscaba líneas que **empiezan** por `FAILED`, y
+la línea llegaba así:
+
+```
+\x1b[31mFAILED\x1b[0m pruebas/test_caso_01.py::test_6_no_escala…
+```
+
+Pytest colorea cuando el entorno trae `FORCE_COLOR` o `PY_COLORS`, **aunque la salida vaya a
+una tubería**. En una terminal normal el censo funcionaba, y por eso nadie lo vio nunca.
+
+**Dónde duele: ese entorno es el de un agente.** Este kit está hecho para que lo construya
+Claude Code, que exporta `FORCE_COLOR`. El censo se rompía justo en el sitio donde más se
+usa, y de la peor manera: sin fallar. Un censo que no lee sus rojos no da error, **afirma que
+no midió**, y el chequeo que lo consume lo daba por bueno porque lee la evidencia guardada en
+vez de volver a medir.
+
+**Arreglado por los dos lados**, que es como toca cuando algo se rompe en silencio:
+
+- Las dos corridas del censo —la base y cada mutante— llevan `--color=no`.
+- El patrón aguanta escapes ANSI por si alguien fuerza el color igual.
+
+Y con una prueba detrás, `pruebas/test_censo_lee_sus_rojos.py`, diez nodos. Comprobado que se
+puede poner roja: volviendo al patrón viejo caen 3.
+
+| Antes | Después |
+|---|---|
+| `censo: 40 indeterminado · 3 no_mutable` | `censo: 40 afirmado · 3 no_mutable` |
+
+### Lo que esto deja abierto
+
+**El chequeo 23 sigue leyendo evidencia guardada.** Con el censo arreglado la evidencia vuelve
+a ser buena, pero la propiedad de fondo no cambia: un chequeo que consume un archivo escrito
+en otra corrida afirma sobre el pasado. Hoy detecta si el árbol cambió y saltea, que es lo
+correcto; lo que no puede detectar es una evidencia **escrita por un censo roto**, porque el
+árbol era el mismo. Merece pensarse: el censo podría dejar su propio veredicto de salud en el
+archivo, y el chequeo 23 negarse a leer una evidencia que se declaró ciega.
+
+---
+
+## El caché de prompt · cerrado el 2026-08-18
+
+Durante siete rondas el kit hizo la mitad difícil y no cobró la fácil. `cache-estatico`
+garantizaba desde el principio que el prefijo del sistema fuera idéntico byte por byte —sin
+reloj, sin `uuid`, sin valores de la petición—, que es el trabajo de verdad. Y después
+`agente/modelo.py` lo mandaba así:
+
+```python
+cuerpo_sistema = [{"type": "text", "text": sistema or ""}]
+```
+
+Sin `cache_control`. O sea: el prefijo se volvía a cobrar entero en cada mensaje, y **no había
+forma de notarlo**. La respuesta es correcta, la compuerta verde, la suite en verde. Sólo sube
+la factura, y en un cerrador el mismo catálogo y el mismo playbook se leen en cada turno de cada
+conversación.
+
+Lo que más pesa: `blueprint/50-despliegue.md` ya prometía por escrito *«con caché de prompt cae a
+la mitad»*. El documento lo prometía y el código no lo hacía.
+
+**Qué se hizo.** La clave en el bloque del sistema, dictada en `blueprint/30-generacion.md`
+§ Paso 5; el chequeo **24 `cache-cobrado`**, que es error si la llamada va sin ella; y
+`pruebas/test_cache_cobrado.py`, cuatro nodos que leen el árbol sin salir a la red.
+
+**Comprobado que se pueden poner rojos**, que es la única prueba que vale:
+
+| Mutación en `agente/modelo.py` | Qué dio la suite |
+|---|---|
+| `cache_control` quitado entero | 2 failed, 2 passed |
+| `{"type": "efimero"}` en vez de `ephemeral` | 1 failed, 3 passed |
+
+### Lo que esta clave NO hace, y hay que decirlo
+
+Por debajo del mínimo cacheable del modelo —**512 tokens en Opus 5**— la API no cachea y **no
+avisa**: `cache_creation_input_tokens` viene en cero, sin error. Con el catálogo y el playbook de
+la configuración de demostración el prefijo mide **882 caracteres** y no llega, así que ahí la
+clave está de adorno.
+
+No es un defecto del kit: es que ese negocio todavía no tiene prefijo suficiente. Por eso el
+chequeo 24 mide el prefijo del árbol y lo dice en voz alta, como **aviso y no como error**. El
+día que el playbook tenga sus ocho objeciones escritas y el catálogo sus productos de verdad, el
+aviso se apaga solo y el ahorro empieza sin tocar una línea.
+
+### Lo que queda abierto
+
+**Nadie ha medido el ahorro de punta a punta.** Para eso hace falta una clave de la API de
+Anthropic y dos llamadas idénticas seguidas mirando `cache_read_input_tokens`, y la compuerta
+corre sin red y sin credenciales a propósito. Lo comprueba quien despliegue, una vez, con el
+prefijo de su negocio ya escrito. Si tu primera lectura de caché da cero con un prefijo largo,
+ahí sí hay algo que mirar.
+
+---
+
+## El kit tenía fecha de caducidad y no lo sabía · cerrado el 2026-08-18
+
+`blueprint/05-arranque.md` y `blueprint/50-despliegue.md` decían **«hoy ese mensaje no se
+cobra»** sobre el precio de WhatsApp. El 1 de octubre de 2026 Meta pasa a cobrar por mensaje
+de negocio, incluidas las respuestas de servicio y las utility adentro de la ventana.
+
+O sea: esa frase **se vuelve falsa sola**. Sin que nadie toque un archivo, sin que falle una
+prueba, sin que la compuerta se entere. Y el kit se la sigue contando al comprador con la
+misma seguridad con la que cuenta lo que sí es cierto.
+
+Es la peor clase de error que puede tener algo que se vende hecho: no hay fallo, hay
+confianza. El comprador cotiza con un precio viejo creyendo que es el de hoy.
+
+### Qué se hizo
+
+**La prosa, en dos regímenes con fecha.** Ni «hoy» ni «esto cambia»: *hasta el 30 de
+septiembre de 2026* una cosa, *desde el 1 de octubre de 2026* la otra. Así el texto es cierto
+a los dos lados del corte y no hay que editarlo ese día — que es justo lo que no iba a pasar.
+
+**Chequeo 25 `fechas-que-caducan`.** La lista de afirmaciones con fecha vive en `auditar.py`,
+no en la prosa, por lo mismo que `ARCHIVOS_DE_PRUEBA`: una vara que escribe el auditado no es
+una vara. El chequeo hace tres cosas:
+
+- error si alguien **borra** la advertencia (el comprador se queda sin saber que hay corte),
+- error si la fecha **ya pasó** y el párrafo sigue hablando en futuro,
+- aviso desde 45 días antes, para que no llegue el día y nadie se acuerde.
+
+Hoy avisa: faltan 44 días.
+
+### Comprobado que se puede poner rojo
+
+| Mutación | Qué dio la suite |
+|---|---|
+| la prosa real vuelve a decir «esto cambia el 1 de octubre» | 1 failed, 7 passed |
+| el chequeo deja de mirar si el párrafo habla en futuro | 1 failed, 7 passed |
+
+La prueba que cierra el encargo es
+`test_los_blueprints_de_verdad_siguen_diciendo_la_verdad_el_2_de_octubre`: no es una maqueta,
+son los archivos que se le entregan al comprador, leídos parados en el día después del corte.
+
+### Lo que queda abierto
+
+**Los números de las dos tarifas no los ha verificado nadie contra la página de Meta.** Están
+copiados de la documentación en el momento en que se escribió el kit. La fecha del corte sí
+está comprobada; los centavos por país, no. Quien despliegue mira la página de precios antes
+de prometerle un número a un cliente, y el texto ahora se lo dice con esas palabras.
+
+---
+
 ## Cómo se anota lo que vas cerrando
 
 Debajo de cada punto, una línea con la fecha y qué te dio. Un pendiente cerrado sin nota vuelve
