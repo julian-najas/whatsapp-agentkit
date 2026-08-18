@@ -315,4 +315,14 @@ dónde se corrigen.
 la cuenta de servicio, ni tu clave de Anthropic. Un issue es público desde el segundo cero, y un
 token que pasó por ahí hay que rotarlo: borrar el mensaje no lo despublica.
 
+## Procedencia
+
+Este kit es una **obra derivada**. El original es de Hainrixz, con licencia MIT, y el aviso de
+copyright viaja intacto en [`LICENSE`](LICENSE) como esa licencia pide.
+
+Lo que pone Cosas Agénticas encima: el blueprint de dieciséis fases, los contratos de entrada y
+salida, la suite y sus fixtures firmados, la compuerta de veintitrés chequeos y los once
+comandos. Se dice acá y no en letra chica porque un comprador tiene derecho a saber qué compra,
+y porque enterarse por otro lado siempre sale peor que leerlo en la primera página.
+
 Licencia MIT. Ver [`LICENSE`](LICENSE).
