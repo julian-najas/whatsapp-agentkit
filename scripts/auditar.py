@@ -3687,10 +3687,12 @@ PISO_DE_NODOS = 30
 # no lo reporta nadie: pytest no falla, el total baja y el desglose por archivo lo mira una persona.
 ARCHIVOS_DE_PRUEBA = (
     "test_bandeja.py",
+    "test_cache_cobrado.py",
     "test_campos.py",
     "test_camino_feliz.py",
     "test_caso_01.py",
     "test_caso_02.py",
+    "test_censo_lee_sus_rojos.py",
     "test_contrato.py",
     "test_enviar.py",
     "test_firmas.py",
@@ -4386,7 +4388,7 @@ class _Mapa:
         base = self.prefijos.get(clave) or {self.fabricas[clave].prefijo}
         return [p + literal for p in base]
 
-    def rutas(self, rel: str, arbol: ast.Module) -> list[tuple[str, ast.Call, int, tuple[str, ...]]]:
+    def rutas(self, arbol: ast.Module) -> list[tuple[str, ast.Call, int, tuple[str, ...]]]:
         """`(objeto sobre el que se monta, llamada, línea, métodos)` de este archivo."""
         encontradas: list[tuple[str, ast.Call, int, tuple[str, ...]]] = []
         for nodo in ast.walk(arbol):
@@ -4502,7 +4504,7 @@ def chequeo_panel_cerrado(c: Contexto, r: Reporte) -> None:
         # —el objeto sobre el que se montan no es una fábrica que se pueda leer— y ocho renglones
         # repitiéndola tapan el hallazgo que sí dice qué arreglar.
         sin_duenno: list[tuple[str, str, int]] = []
-        for objeto, llamada, linea, _ in mapa.rutas(rel, arbol):
+        for objeto, llamada, linea, _ in mapa.rutas(arbol):
             literal = _camino_de_ruta(llamada)
             if not literal.startswith("/"):
                 continue
@@ -4682,7 +4684,7 @@ def chequeo_rutas_del_contrato(c: Contexto, r: Reporte) -> None:
     mapa = _leer_montaje(c)
     montadas: dict[tuple[str, str], list[tuple[str, int]]] = {}
     for rel, arbol in mapa.arboles.items():
-        for objeto, llamada, linea, metodos in mapa.rutas(rel, arbol):
+        for objeto, llamada, linea, metodos in mapa.rutas(arbol):
             literal = _camino_de_ruta(llamada)
             if not literal.startswith("/"):
                 continue
@@ -5078,6 +5080,17 @@ def chequeo_censo_campos(c: Contexto, r: Reporte) -> None:
             f"nuevo")
         return
 
+    if datos.get("lectura_de_rojos") == "ciega":
+        r.error("censo/evidencia_ciega",
+                f"{CENSO.as_posix()} lo escribió un censo que no supo leer un solo rojo: mutó "
+                f"salidas en todos los campos y ninguna prueba figuró como caída. Esa evidencia "
+                f"no dice «nadie afirma estos campos», dice «no pude medir», y leerla como lo "
+                f"primero es exactamente la mentira que este chequeo existe para evitar. Suele "
+                f"ser el entorno: con `FORCE_COLOR` o `PY_COLORS` puestos pytest colorea aunque "
+                f"la salida vaya a una tubería. Volvé a correr `{_como_correr(c)} --censo`",
+                CENSO.as_posix(), 0, "kit")
+        return
+
     medidos = {ch.get("campo"): ch for ch in datos["campos"] if isinstance(ch, dict)}
     afirmados = [ruta for ruta in declarados
                  if medidos.get(ruta, {}).get("veredicto") == "afirmado"]
@@ -5329,7 +5342,38 @@ def pytest_configure(config):
     _apuntar()
 '''
 
-FALLA_DE_PYTEST = re.compile(r"^(?:FAILED|ERROR)\s+(\S+)")
+# El `\x1b\[[0-9;]*m` del principio no es adorno defensivo: sin él este patrón no casa
+# ni una línea cuando pytest colorea, y pytest colorea si el entorno trae `FORCE_COLOR`
+# o `PY_COLORS`, aunque la salida vaya a una tubería. Pasó el 18-ago-2026: el censo mutaba
+# los 48 documentos, la suite se ponía roja como tenía que ponerse, y los cuarenta y tres
+# campos salían `indeterminado` porque `\x1b[31mFAILED` no empieza por `FAILED`. Un censo
+# que no sabe leer sus propios rojos afirma que no midió nada. Abajo, además, se le pide a
+# pytest que no coloree; esto es el cinturón del tirante.
+ANSI = r"(?:\x1b\[[0-9;]*m)*"
+FALLA_DE_PYTEST = re.compile(rf"^{ANSI}(?:FAILED|ERROR){ANSI}\s+{ANSI}(\S+)")
+
+
+def _salud_de_la_lectura(resultados: list[dict]) -> str:
+    """¿El censo reconoció algún rojo, o estuvo ciego toda la corrida?
+
+    `ciega` no significa «algún campo no se midió»: significa que el censo **cambió** salidas
+    y no supo leer un solo rojo en toda la corrida. Si mutás decenas de documentos repartidos
+    por todos los campos y ninguna prueba se pone roja que vos puedas ver, la explicación
+    razonable no es que la suite no afirme nada: es que no estás leyendo la salida.
+
+    Se separa de `indeterminado` a propósito. Un campo indeterminado suelto es información;
+    cuarenta y tres seguidos, habiendo mutado, es un instrumento roto. Lo primero se anota;
+    lo segundo invalida la evidencia entera, y el chequeo 23 se niega a leerla.
+    """
+    if not resultados:
+        return "sin_datos"
+    mutados = sum(int(x.get("mutados", 0)) for x in resultados)
+    if mutados == 0:
+        # Nada mutó: no hay rojos que leer, así que de la lectura no se puede decir nada.
+        return "sin_datos"
+    if any(x.get("veredicto") == "afirmado" for x in resultados):
+        return "ok"
+    return "ciega"
 
 
 def _correr_mutante(c: Contexto, temporal: Path, campo: str, candidatos: list) -> dict:
@@ -5344,7 +5388,8 @@ def _correr_mutante(c: Contexto, temporal: Path, campo: str, candidatos: list) -
         "CENSO_ESQUEMA": str(c.raiz / ESQUEMA_DE_SALIDA),
     }
     codigo, salida = _correr(
-        [c.interprete, "-m", "pytest", "pruebas", "-q", "-x", "-rfE", "-p", "censo_plugin"],
+        [c.interprete, "-m", "pytest", "pruebas", "-q", "-x", "-rfE", "--color=no",
+         "-p", "censo_plugin"],
         cwd=c.raiz, timeout=SEGUNDOS_CENSO, entorno=entorno)
     try:
         cuenta = json.loads(informe.read_text(encoding="utf-8"))
@@ -5402,7 +5447,7 @@ def correr_censo(c: Contexto, *, solo: str = "") -> dict:
 
     print(f"censo · {len(campos)} campo(s) de {ESQUEMA_DE_SALIDA}")
     print("  base · pytest pruebas -q, sin mutante")
-    codigo, salida = _correr([c.interprete, "-m", "pytest", "pruebas", "-q"],
+    codigo, salida = _correr([c.interprete, "-m", "pytest", "pruebas", "-q", "--color=no"],
                              cwd=c.raiz, timeout=SEGUNDOS_CENSO)
     ultima = salida.splitlines()[-1] if salida else ""
     if codigo != 0:
@@ -5468,6 +5513,13 @@ def correr_censo(c: Contexto, *, solo: str = "") -> dict:
         "huella": _huella_del_censo(c.raiz),
         "interprete": c.interprete,
         "base": _recorte(ultima, 120),
+        # El censo dice si supo leer. La huella detecta que el árbol cambió; esto detecta que
+        # el censo estaba ciego sobre el árbol correcto, que es un agujero distinto y el que
+        # nos mordió el 18-ago-2026: `FORCE_COLOR` en el entorno, pytest coloreando, y el
+        # patrón de rojos sin casar ni una línea. Mutó cuarenta y ocho documentos, la suite se
+        # puso roja, y los cuarenta y tres campos salieron `indeterminado`. La evidencia era
+        # de este árbol y era mentira, así que la huella la daba por buena.
+        "lectura_de_rojos": _salud_de_la_lectura(resultados),
         "campos": resultados,
     }
 

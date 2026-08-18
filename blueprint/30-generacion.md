@@ -258,7 +258,7 @@ primer despliegue con Postgres.
 forma async; ver `blueprint/00-contrato.md` § 8.
 
 ```python
-from urllib.parse import parse_qsl, urlencode, urlsplit, urlunsplit
+from urllib.parse import parse_qsl, urlencode, urlsplit
 
 ESQUEMAS = {"postgres": "postgresql+asyncpg", "postgresql": "postgresql+asyncpg",
             "sqlite": "sqlite+aiosqlite"}

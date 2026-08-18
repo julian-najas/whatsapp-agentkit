@@ -492,6 +492,52 @@ que es de otro dueño.
 
 ---
 
+## El censo no sabía leer sus propios rojos · cerrado el 2026-08-18
+
+`--censo` daba **43 campos `indeterminado`**, o sea «no pude medir ninguno». La evidencia
+guardada decía otra cosa: en el campo `estado`, `mutados: 48` y un `FAILED` adentro del
+detalle. Estaba mutando, la suite se ponía roja como tenía que ponerse, y el veredicto era
+que no había medido nada.
+
+El último paso era el roto. `FALLA_DE_PYTEST` buscaba líneas que **empiezan** por `FAILED`, y
+la línea llegaba así:
+
+```
+\x1b[31mFAILED\x1b[0m pruebas/test_caso_01.py::test_6_no_escala…
+```
+
+Pytest colorea cuando el entorno trae `FORCE_COLOR` o `PY_COLORS`, **aunque la salida vaya a
+una tubería**. En una terminal normal el censo funcionaba, y por eso nadie lo vio nunca.
+
+**Dónde duele: ese entorno es el de un agente.** Este kit está hecho para que lo construya
+Claude Code, que exporta `FORCE_COLOR`. El censo se rompía justo en el sitio donde más se
+usa, y de la peor manera: sin fallar. Un censo que no lee sus rojos no da error, **afirma que
+no midió**, y el chequeo que lo consume lo daba por bueno porque lee la evidencia guardada en
+vez de volver a medir.
+
+**Arreglado por los dos lados**, que es como toca cuando algo se rompe en silencio:
+
+- Las dos corridas del censo —la base y cada mutante— llevan `--color=no`.
+- El patrón aguanta escapes ANSI por si alguien fuerza el color igual.
+
+Y con una prueba detrás, `pruebas/test_censo_lee_sus_rojos.py`, diez nodos. Comprobado que se
+puede poner roja: volviendo al patrón viejo caen 3.
+
+| Antes | Después |
+|---|---|
+| `censo: 40 indeterminado · 3 no_mutable` | `censo: 40 afirmado · 3 no_mutable` |
+
+### Lo que esto deja abierto
+
+**El chequeo 23 sigue leyendo evidencia guardada.** Con el censo arreglado la evidencia vuelve
+a ser buena, pero la propiedad de fondo no cambia: un chequeo que consume un archivo escrito
+en otra corrida afirma sobre el pasado. Hoy detecta si el árbol cambió y saltea, que es lo
+correcto; lo que no puede detectar es una evidencia **escrita por un censo roto**, porque el
+árbol era el mismo. Merece pensarse: el censo podría dejar su propio veredicto de salud en el
+archivo, y el chequeo 23 negarse a leer una evidencia que se declaró ciega.
+
+---
+
 ## El caché de prompt · cerrado el 2026-08-18
 
 Durante siete rondas el kit hizo la mitad difícil y no cobró la fácil. `cache-estatico`
