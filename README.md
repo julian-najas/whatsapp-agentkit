@@ -56,6 +56,23 @@ Eso es lo que hace, y eso es lo que te llevás:
 
 Contestás al instante sin que nadie diga una tontería en tu nombre.
 
+### Esto no es para vos si…
+
+Seamos claros, porque te vas a ahorrar la tarde:
+
+- **Querés un bot que conteste solo y te olvidás.** Este no. Redacta y espera tu enter. Podés
+  soltarlo a automático cuando vos quieras, y esa decisión es tuya, no viene de fábrica.
+- **Querés que cierre a cualquier precio.** Este escala en vez de regatear. Si tu estrategia
+  es dar el 30 % con tal de firmar hoy, sale más barato un bot cualquiera.
+- **Querés instalarlo en tres clics sin tocar nada.** Hay que escribir tu catálogo, tu playbook
+  y tu disponibilidad. Un agente que no sabe qué vendés se lo inventa, y ahí empieza el
+  problema.
+- **No tenés a nadie que mire los borradores los primeros días.** Sin eso no es más rápido:
+  es igual de lento y encima con un paso más.
+
+Y es para vos si preferís **perder un lead antes que quedar mal con uno bueno**. Todo lo de
+arriba es la misma decisión repetida: el agente no dice nada que vos no puedas sostener.
+
 ## Los seis pasos
 
 Son el contrato, y están así en `CLAUDE.md`:
